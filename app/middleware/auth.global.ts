@@ -1,5 +1,7 @@
 import { authClient } from '../utils/auth-client'
 
+const publicPaths = ['/auth', '/activities/reminiscence-therapy']
+
 export default defineNuxtRouteMiddleware(async (to) => {
   const { data: session } = await authClient.useSession(useFetch)
 
@@ -8,7 +10,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       return navigateTo('/')
     }
   } else {
-    if (to.path !== '/auth') {
+    if (!publicPaths.includes(to.path)) {
       return navigateTo('/auth')
     }
   }
