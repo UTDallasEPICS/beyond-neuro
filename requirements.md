@@ -22,13 +22,26 @@ Use the matrix below to track requirements throughout the project lifecycle.
 | REQ-F-05  | Profile image is served with its `Content-Type` detected from file contents (magic bytes)        | Verified | 2026F           | `server/api/users/[id]/profile.get.ts`       |
 | REQ-F-06  | User-list endpoint returns only non-sensitive fields and never leaks image storage paths         | Verified | 2026F           | `server/api/users/index.get.ts`              |
 | REQ-F-07  | Unauthenticated `/api/health` endpoint returns HTTP 200 for load-balancer probes                 | Verified | 2026F           | `server/api/health.ts`                       |
+| REQ-F-09  | 3 out of 6 total cognitive modules to be fully functional, with difficulty levels in each.
+  3 will be this semester and rest will be winter semester.                                                    | Backlog  |2026F-W          |       		        
+| REQ-F-11  |The platform meets WCAG 2.1 AA standards on all pages, including the avatar.                      |Backlog   |2026F            |
+| REQ-F- 15  | The platform needs caregiver dashboard.                                                         |Backlog   |2026W            |
 | REQ-NF-01 | Persistence is type-safe: Drizzle ORM schema with generated Zod select/insert schemas            | Verified | 2026F           | `server/db/schema.ts`                        |
 | REQ-NF-02 | CI runs lint, type-check, and the Vitest suite on every PR and on `dev`/`stage`/`prod` pushes    | Verified | 2026F           | `.github/workflows/test.yml`                 |
-| REQ-NF-03 | Deploy pipeline order is build → migrate → push → deploy, so a failed migration never ships       | Verified | 2026F           | `.github/workflows/deploy.yml`               |
+| REQ-NF-03 | Deploy pipeline order is build → migrate → push → deploy, so a failed migration never ships      | Verified | 2026F           | `.github/workflows/deploy.yml`                |
 | REQ-NF-04 | `stage`/`prod` auto-deploy to AWS ECS via GitHub OIDC — no static AWS keys stored                | Verified | 2026F           | `.github/workflows/{stage,prod}.yml`         |
 | REQ-NF-05 | App ships as a container image with the toolchain to compile native modules in the builder       | Verified | 2026F           | `Dockerfile`                                 |
 | REQ-NF-06 | Test baseline runs with no `.env`, database, email, or browser (`pnpm test` works on clone)      | Verified | 2026F           | `vitest.config.ts`, `tests/`                 |
-| REQ-NF-07 | Dependency versions are pinned for reproducible, deploy-safe builds                              | Verified | 2026F           | `package.json`                               |
+| REQ-NF-07 | Dependency versions are pinned for reproducible, deploy-safe builds                              | Verified | 2026F           | `package.json`      
+| REQ-NF-08 | The platform must be built as and offline-capable PWA.                            	       | Backlog  | 2026F           |                             		   |
+| REQ-NF-10 |Virtual avatar with a text-only mode, reduced motion mode, and dismiss button.                    | Backlog |2026F    	    |
+| REQ-NF-13 | App should be multilingual, Spanish support requirement                                          | Backlog | 2026W            |
+| REQ-MF-16 | Health Literacy Hub, stroke recovery content, dementia stages,and brain health tips, Grade 5-6 
+              level English and Spanish                                                                        | Backlog | 2026W            |                                              |                                                         
+
+
+
+                         
 
 ## 2. Change Log
 
@@ -39,3 +52,4 @@ Track major changes, additions, or deprecations to the project scope.
 | 2026-08-23 | REQ-F/NF-\*    | Established the initial requirements register from the template baseline             | @TusharW4ni | —           |
 | 2026-08-23 | REQ-NF-07      | Pinned `better-auth@1.6.23` and `better-sqlite3@12.11.1` to keep the deploy build and migration Lambda working | @TusharW4ni | —           |
 | 2026-08-23 | REQ-NF-05      | Added `python3`/`make`/`g++` to the Docker builder so native modules compile         | @TusharW4ni | —           |
+|2026-09-23  | R-05-F-12      | Frictionless, zero-auth public access for core exercises.                            | @ArpitKhavate|            |
