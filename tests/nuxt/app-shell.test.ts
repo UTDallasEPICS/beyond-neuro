@@ -28,7 +28,7 @@ describe('application shell (app.vue)', () => {
   })
 
   it('links the brand to the home route', async () => {
-    // Act: mount the shell, stubbing <NuxtPage /> so no page/route is loaded.
+    // Act: mount the shell. NuxtLayout renders layouts/default.vue; stub the page.
     const wrapper = await mountSuspended(App, {
       global: { stubs: { NuxtPage: true } },
     })
