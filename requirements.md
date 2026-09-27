@@ -23,8 +23,7 @@ Use the matrix below to track requirements throughout the project lifecycle.
 | REQ-F-06  | User-list endpoint returns only non-sensitive fields and never leaks image storage paths         | Verified | 2026F           | `server/api/users/index.get.ts`              |
 | REQ-F-07  | Unauthenticated `/api/health` endpoint returns HTTP 200 for load-balancer probes                 | Verified | 2026F           | `server/api/health.ts`                       |
 | REQ-F-08 | Users can access and interact with Activity Library activities, including coloring, rhythm, matching, and life story prompts. | In-progress | 2026F | — |
-| REQ-F-09  | 3 out of 6 total cognitive modules to be fully functional, with difficulty levels in each.
-  3 will be this semester and rest will be winter semester.                                                    | Backlog  |2026F-W          |       		        
+| REQ-F-09  | 3 out of 6 total cognitive modules to be fully functional, with difficulty levels in each.  3 will be this semester and rest will be winter semester.                                                    | Backlog  |2026F-W          |       		        
 | REQ-F-11  |The platform meets WCAG 2.1 AA standards on all pages, including the avatar.                      |Backlog   |2026F            |
 | REQ-F- 15  | The platform needs caregiver dashboard.                                                         |Backlog   |2026W            |
 | REQ-NF-01 | Persistence is type-safe: Drizzle ORM schema with generated Zod select/insert schemas            | Verified | 2026F           | `server/db/schema.ts`                        |
