@@ -16,7 +16,7 @@
   const EMPTY = ''
 
   // selectedColor ≈ React useState(colors[0])
-  const selectedColor = ref<(typeof colors)[number]>(colors[0])
+  const selectedColor = ref<string>(colors[0])
 
   // 9×9 grid of fill colors. '' = uncolored. ≈ useState 2D array
   const cells = ref<string[][]>(
@@ -25,10 +25,6 @@
 
   // True while pointer is held down — enables drag-to-paint
   const isPainting = ref(false)
-
-  function selectColor(color: (typeof colors)[number]) {
-    selectedColor.value = color
-  }
 
   /** Paint a cell and its left/right mirror twin (bilateral symmetry). */
   function paintCell(row: number, col: number) {
@@ -62,46 +58,13 @@
 </script>
 
 <template>
-  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-    <!-- Badge -->
-    <div
-      class="inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-lg font-semibold tracking-wide text-violet-900 uppercase"
-    >
-      <UIcon name="i-heroicons-sparkles" class="h-5 w-5" aria-hidden="true" />
-      Try it now — interactive
-    </div>
-
-    <p class="mt-4 text-lg text-slate-600">
-      Tap or drag across the canvas to color. Each stroke is mirrored — a quiet, low-pressure way
-      to focus the mind.
-    </p>
-
-    <!-- Palette + Clear -->
-    <div class="mt-6 flex flex-wrap items-center gap-4">
-      <div class="flex flex-wrap items-center gap-3" role="listbox" aria-label="Color palette">
-        <button
-          v-for="color in colors"
-          :key="color"
-          type="button"
-          role="option"
-          :aria-selected="selectedColor === color"
-          :aria-label="`Select color ${color}`"
-          class="h-12 w-12 rounded-full border-4 transition-transform hover:scale-105 focus-visible:ring-4 focus-visible:ring-violet-300 focus-visible:outline-none sm:h-14 sm:w-14"
-          :class="selectedColor === color ? 'scale-110 border-violet-900' : 'border-transparent'"
-          :style="{ backgroundColor: color }"
-          @click="selectColor(color)"
-        />
-      </div>
-
-      <button
-        type="button"
-        class="ml-auto flex items-center gap-2 rounded-xl bg-[#f3eee8] px-5 py-3 text-lg font-medium text-slate-800 hover:bg-[#ebe4dc] focus-visible:ring-4 focus-visible:ring-violet-300 focus-visible:outline-none"
-        @click="clearCanvas"
-      >
-        <UIcon name="i-heroicons-backspace" class="h-6 w-6" aria-hidden="true" />
-        Clear
-      </button>
-    </div>
+  <ActivityCard
+    instructions="Tap or drag across the canvas to color. Each stroke is mirrored — a quiet, low-pressure way to focus the mind."
+    @clear="clearCanvas"
+  >
+    <template #palette>
+      <ColorPalette v-model="selectedColor" :colors="colors" />
+    </template>
 
     <!-- 9×9 mirrored coloring grid -->
     <div
@@ -130,5 +93,5 @@
         </template>
       </div>
     </div>
-  </div>
+  </ActivityCard>
 </template>
