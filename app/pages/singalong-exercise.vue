@@ -224,7 +224,7 @@ onBeforeUnmount(() => {
         </div>
       </header>
 
-      <!-- Lavender card -->
+     
       <section class="rounded-3xl bg-[#EAE6FB] p-10 shadow-sm">
         <div class="mx-auto max-w-xl">
           <!-- Setup: pick audio + song title/artist -->
@@ -285,7 +285,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <!-- Manual sync fallback: play + tap "Mark line" -->
+        
           <div v-else-if="stage === 'syncing'" class="rounded-2xl border border-[#c9c0f5] bg-white/70 p-6">
             <p class="text-sm font-semibold text-[#1E1B4B]">Sync the lyrics</p>
             <p class="mt-1 text-xs text-slate-500">
@@ -319,7 +319,7 @@ onBeforeUnmount(() => {
             </button>
           </div>
 
-          <!-- Playing: karaoke display synced to audio.currentTime -->
+          
           <div v-else class="rounded-2xl border border-[#c9c0f5] bg-white/70 p-8">
             <div class="flex items-center justify-between">
               <p v-if="songTitle" class="text-xs font-semibold tracking-wide text-slate-500 uppercase">
