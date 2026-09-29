@@ -4,12 +4,8 @@ export interface PhotoMemoryPrompt {
   id: string
   level: PhotoLevel
   title: string
-  // Path under /public. Leave empty until a licensed photo is added; the page shows a placeholder.
   image?: string
-  // Describes the photo for screen readers and is shown on the placeholder
   alt: string
-  // Open questions shown after the person says "Yes, this reminds me of something".
-  // Keep them open-ended. Avoid "Do you remember...?" so it never feels like a test.
   followUps: string[]
 }
 
