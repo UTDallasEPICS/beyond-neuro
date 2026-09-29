@@ -22,7 +22,7 @@
       description:
         'Familiar images used as conversation anchors when short-term recall feels hard.',
       icon: '/activities/icon-image.svg',
-      to: null,
+      to: '/activities/reminiscence/photo-memory-starters',
     },
     {
       title: 'Reminiscence Journal',
