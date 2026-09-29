@@ -1,5 +1,3 @@
-import PhotoMemoryFlow from '~/components/activities/reminiscence/PhotoMemoryFlow.vue'
-
 <script setup lang="ts">
   definePageMeta({
     layout: 'activity',
@@ -33,7 +31,6 @@ import PhotoMemoryFlow from '~/components/activities/reminiscence/PhotoMemoryFlo
         </p>
 
         <ActivitiesReminiscencePhotoMemoryFlow />
-        <PhotoMemoryFlow />
       </div>
     </main>
   </div>

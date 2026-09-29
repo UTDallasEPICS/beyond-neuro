@@ -67,7 +67,7 @@
     }
   }
 
-  watch([step, index], () => nextTick(() => heading.value?.focus()))
+  watch([step, index, questionIndex], () => nextTick(() => heading.value?.focus()))
 
   function goTo(i: number) {
     index.value = i
