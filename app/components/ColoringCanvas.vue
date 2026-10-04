@@ -68,7 +68,7 @@
 
     <!-- 9×9 mirrored coloring grid -->
     <div
-      class="mt-6 touch-none select-none overflow-hidden rounded-xl border border-slate-200 bg-white"
+      class="mt-6 touch-none select-none overflow-hidden rounded-2xl border border-[var(--bn-border)] bg-white"
       @pointerup="stopPainting"
       @pointerleave="stopPainting"
       @pointercancel="stopPainting"
@@ -84,7 +84,7 @@
             :key="`${rowIndex}-${colIndex}`"
             type="button"
             role="gridcell"
-            class="aspect-square border border-slate-200 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+            class="aspect-square border border-slate-200 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[var(--bn-navy)] focus-visible:outline-none"
             :style="{ backgroundColor: cellColor || '#ffffff' }"
             :aria-label="`Row ${rowIndex + 1}, column ${colIndex + 1}`"
             @pointerdown.prevent="onCellPointerDown(rowIndex, colIndex)"

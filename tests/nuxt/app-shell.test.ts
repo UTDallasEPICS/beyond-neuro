@@ -1,9 +1,8 @@
 // @vitest-environment nuxt
 //
 // A component test for the application shell (app/app.vue). It renders the real
-// component in the Nuxt environment, stubs out page routing, and proves the two
-// always-present pieces of the shell work: the brand link points home, and the
-// theme toggle is reachable by assistive technology.
+// component in the Nuxt environment, stubs out page routing, and proves the shell
+// opens straight into the activity layout: no login, no template header.
 //
 // This test never opens the database, reads an env file, sends email, or makes a
 // network request. Those integrations are intentionally out of scope for the
@@ -27,28 +26,26 @@ describe('application shell (app.vue)', () => {
     fetchSpy.mockRestore()
   })
 
-  it('links the brand to the home route', async () => {
-    // Act: mount the shell. NuxtLayout renders layouts/default.vue; stub the page.
+  it('renders the home route inside the cream activity layout', async () => {
+    // Act: mount the shell. NuxtLayout renders layouts/activity.vue; stub the page.
     const wrapper = await mountSuspended(App, {
       global: { stubs: { NuxtPage: true } },
     })
 
-    // Assert: the brand link shows "Nuxt Template" and targets "/".
-    const brandLink = wrapper.get('a')
-    expect(brandLink.text()).toContain('Nuxt Template')
-    expect(brandLink.attributes('href')).toBe('/')
+    // Assert: the activity layout's cream background wraps the page.
+    expect(wrapper.find('.bg-\\[var\\(--bn-cream\\)\\]').exists()).toBe(true)
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
-  it('exposes an accessible "Toggle Theme" control', async () => {
+  it('shows no template header or login prompt', async () => {
     // Act
     const wrapper = await mountSuspended(App, {
       global: { stubs: { NuxtPage: true } },
     })
 
-    // Assert: the theme toggle is present and labelled for screen readers.
-    const toggle = wrapper.find('[aria-label="Toggle Theme"]')
-    expect(toggle.exists()).toBe(true)
+    // Assert
+    expect(wrapper.text()).not.toContain('Nuxt Template')
+    expect(wrapper.text().toLowerCase()).not.toContain('sign in')
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 })

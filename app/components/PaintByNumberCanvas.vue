@@ -34,19 +34,23 @@
 
 <template>
   <div>
-    <h2 class="text-xl font-semibold text-slate-900">Choose a picture</h2>
-    <div class="mt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <h2 class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">Choose a picture</h2>
+    <div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
       <button
         v-for="art in illustrations"
         :key="art.id"
         type="button"
-        class="rounded-2xl border-2 bg-white p-4 text-left shadow-sm transition-colors focus-visible:ring-4 focus-visible:ring-violet-300 focus-visible:outline-none"
-        :class="art.id === activeId ? 'border-violet-900' : 'border-transparent hover:border-slate-300'"
+        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        :class="
+          art.id === activeId
+            ? 'border-orange-700 bg-[var(--bn-peach)]'
+            : 'border-slate-300 bg-white hover:bg-slate-50'
+        "
         :aria-pressed="art.id === activeId"
         @click="choosePicture(art.id)"
       >
-        <span class="block text-lg font-semibold text-slate-900">{{ art.title }}</span>
-        <span class="block text-lg text-slate-600">{{ art.origin }}</span>
+        <span class="block text-lg font-bold text-[var(--bn-navy)]">{{ art.title }}</span>
+        <span class="block text-lg text-[var(--bn-muted)]">{{ art.origin }}</span>
         <span class="mt-3 flex gap-1.5" aria-hidden="true">
           <span
             v-for="color in art.palette"
@@ -67,11 +71,11 @@
         <ColorPalette v-model="selectedColor" :colors="active.palette" numbered />
       </template>
 
-      <p class="mt-6 text-lg text-slate-700">
-        <span class="font-semibold">{{ active.title }}</span> — {{ active.description }}
+      <p class="mt-6 text-lg text-[var(--bn-navy)]">
+        <span class="font-bold">{{ active.title }}</span> — {{ active.description }}
       </p>
 
-      <div class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white p-2">
+      <div class="mt-4 overflow-hidden rounded-2xl border border-[var(--bn-border)] bg-white p-2">
         <svg
           :viewBox="active.viewBox"
           class="mx-auto h-auto w-full max-w-xl select-none"
@@ -93,7 +97,7 @@
             :d="region.d"
             :fill="fills[region.id] || '#ffffff'"
             fill-rule="evenodd"
-            :stroke="region.number === selectedNumber ? '#6d28d9' : '#334155'"
+            :stroke="region.number === selectedNumber ? '#c2410c' : '#334155'"
             :stroke-width="region.number === selectedNumber ? 4 : 2"
             stroke-linejoin="round"
             class="cursor-pointer"
@@ -123,7 +127,7 @@
         </svg>
       </div>
 
-      <p class="mt-4 text-lg text-slate-700" aria-live="polite">
+      <p class="mt-4 text-lg font-semibold text-[var(--bn-navy)]" aria-live="polite">
         <template v-if="isComplete">All done — beautiful work. Take a moment to enjoy it.</template>
         <template v-else>{{ coloredCount }} of {{ active.regions.length }} shapes colored</template>
       </p>

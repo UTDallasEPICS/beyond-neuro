@@ -4,25 +4,21 @@
 </script>
 
 <template>
-  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-    <div
-      class="inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-lg font-semibold tracking-wide text-violet-900 uppercase"
-    >
-      <UIcon name="i-heroicons-sparkles" class="h-5 w-5" aria-hidden="true" />
+  <div class="rounded-[20px] border border-[var(--bn-border)] bg-[var(--bn-peach)] p-6 sm:p-10">
+    <p class="text-lg font-bold tracking-wide text-orange-800 uppercase">
       Try it now — interactive
-    </div>
+    </p>
 
-    <p class="mt-4 text-lg text-slate-600">{{ instructions }}</p>
+    <p class="mt-3 text-lg leading-relaxed text-[var(--bn-navy)] sm:text-xl">{{ instructions }}</p>
 
     <div class="mt-6 flex flex-wrap items-center gap-4">
       <slot name="palette" />
 
       <button
         type="button"
-        class="ml-auto flex items-center gap-2 rounded-xl bg-[#f3eee8] px-5 py-3 text-lg font-medium text-slate-800 hover:bg-[#ebe4dc] focus-visible:ring-4 focus-visible:ring-violet-300 focus-visible:outline-none"
+        class="ml-auto inline-flex min-h-[56px] items-center justify-center rounded-2xl border-2 border-slate-400 bg-white px-6 py-3 text-lg font-semibold text-[var(--bn-navy)] hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         @click="$emit('clear')"
       >
-        <UIcon name="i-heroicons-backspace" class="h-6 w-6" aria-hidden="true" />
         Clear
       </button>
     </div>
