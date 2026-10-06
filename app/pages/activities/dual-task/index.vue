@@ -4,37 +4,33 @@
   })
 
   useHead({
-    title: 'Life Story Prompts — Reminiscence Therapy | BeyondNeuro',
+    title: 'Dual-Task Physical Exercise | BeyondNeuro',
   })
 
   const NuxtLink = resolveComponent('NuxtLink')
 
   const exercises = [
     {
-      title: 'Life Story Prompts',
-      description:
-        'Gentle yes-or-no questions that invite autobiographical memory and shared conversation.',
-      icon: '/activities/icon-book-orange.svg',
-      to: '/activities/reminiscence/life-story-prompts',
+      title: 'Walking + counting drills',
+      description: 'Walk while counting backward by 3s or 7s',
+      icon: '/activities/icon-activity-green.svg',
+      to: '/activities/dual-task/move-and-think',
     },
     {
-      title: 'Photo Memory Starters',
-      description:
-        'Familiar images used as conversation anchors when short-term recall feels hard.',
-      icon: '/activities/icon-image.svg',
-      to: '/activities/reminiscence/photo-memory-starters',
-    },
-    {
-      title: 'Reminiscence Journal',
-      description:
-        'Short structured prompts that help capture favorite people, places, and stories.',
+      title: 'Seated balance work',
+      description: 'Reach and reflect — naming categories while moving',
       icon: '/activities/icon-grid.svg',
       to: null,
     },
     {
-      title: 'Caregiver Prompt Cards',
-      description:
-        'Facilitation cues for pacing, sensory comfort, and following the person’s lead.',
+      title: 'Resistance + recall',
+      description: 'Light bands paired with memory recall tasks',
+      icon: '/activities/icon-book-orange.svg',
+      to: null,
+    },
+    {
+      title: 'Tai chi and slow movement',
+      description: 'Mindful sequences that load attention and motor systems',
       icon: '/activities/icon-hash.svg',
       to: null,
     },
@@ -42,18 +38,18 @@
 
   const resources = [
     {
-      title: 'Activity Sheet',
-      description: 'Printable life-story yes/no prompt cards',
+      title: 'Exercise Cards',
+      description: 'Printable movement + brain task cards',
       icon: '/activities/icon-file.svg',
     },
     {
       title: 'Caregiver Guide',
-      description: 'Tips on pacing and memory conversation',
+      description: 'Safety tips and seated modifications',
       icon: '/activities/icon-book-green.svg',
     },
     {
       title: 'Weekly Tracker',
-      description: 'Session log for reminiscence practice',
+      description: 'Session log for dual-task practice',
       icon: '/activities/icon-activity-green.svg',
     },
   ] as const
@@ -63,31 +59,23 @@
       tag: 'Sensory-Motor',
       tagClass: 'bg-[#f5f3ff] text-[#8b5cf6]',
       title: 'Music Therapy & Rhythm',
-      description:
-        'Rhythmic exercises and music-based interventions that activate memory circuits.',
+      description: 'Clapping and tapping to a beat pairs movement with timing and memory.',
     },
     {
       tag: 'Cognitive',
       tagClass: 'bg-[#fff3eb] text-[var(--bn-orange)]',
       title: 'Puzzles & Games',
-      description:
-        'Playful memory and attention practice that pairs well with reminiscence sessions.',
+      description: 'Attention and memory practice that builds on dual-task skills.',
     },
     {
-      tag: 'Fine Motor',
-      tagClass: 'bg-[#fdf2f8] text-[#ec4899]',
-      title: 'Writing & Calligraphy',
-      description:
-        'Guided writing combining cognitive planning with fine motor skill rehabilitation.',
+      tag: 'Sensory',
+      tagClass: 'bg-[#ecfeff] text-[#0891b2]',
+      title: 'Horticultural Therapy',
+      description: 'Gentle hands-on movement through plant care and gardening.',
     },
   ] as const
 
-  const benefits = [
-    'Long-term memory',
-    'Personal identity',
-    'Emotional wellbeing',
-    'Social connection',
-  ] as const
+  const benefits = ['Attention', 'Balance & gait', 'Motor coordination', 'Neuroplasticity'] as const
 </script>
 
 <template>
@@ -102,15 +90,15 @@
             <span
               class="inline-flex rounded-md bg-[var(--bn-peach)] px-3 py-1.5 text-xs font-bold tracking-wide text-[var(--bn-orange)] uppercase"
             >
-              Module 04
+              Module 08
             </span>
             <h1
               class="bn-font-display mt-2 text-3xl font-bold text-[var(--bn-navy)] sm:text-[40px] sm:leading-[48px]"
             >
-              Reminiscence Therapy
+              Dual-Task Physical Exercise
             </h1>
             <p class="mt-2 text-lg text-[var(--bn-navy)] sm:text-[19px] sm:leading-[29px]">
-              Reconnect with identity through photos, stories, and life-story prompts.
+              Move the body and train the brain at the same time.
             </p>
           </div>
 
@@ -137,9 +125,9 @@
             The Research
           </h2>
           <p class="mt-4 max-w-[1050px] text-base leading-[1.45] text-[var(--bn-muted)] sm:text-lg">
-            Long-term memory often holds steady when short-term memory falters. Reminiscence work
-            uses photos, music, and life-story prompts from earlier life to reconnect a person with
-            who they have always been — beyond the diagnosis.
+            Doing a simple movement and a thinking task at the same time works the body and brain
+            together. This kind of practice supports steadier walking and balance, and every
+            exercise can be done seated, standing, or with limited mobility.
           </p>
           <div class="mt-6">
             <p class="text-sm font-bold tracking-wide text-[var(--bn-muted)] uppercase">
