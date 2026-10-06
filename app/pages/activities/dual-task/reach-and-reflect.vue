@@ -4,7 +4,7 @@
   })
 
   useHead({
-    title: 'Walking + Counting Drills | BeyondNeuro',
+    title: 'Seated Balance Work | BeyondNeuro',
   })
 </script>
 
@@ -23,13 +23,13 @@
         </NuxtLink>
 
         <h1 class="bn-font-display mt-6 text-4xl font-bold text-[var(--bn-navy)]">
-          Walking + counting drills
+          Seated balance work
         </h1>
         <p class="mt-4 text-2xl leading-relaxed text-[var(--bn-navy)]">
-          Walk while counting backward by 3s or 7s.
+          Reach and reflect — naming categories while moving.
         </p>
 
-        <ActivitiesDualTaskMoveAndThinkFlow />
+        <ActivitiesDualTaskReachAndReflectFlow />
       </div>
     </main>
   </div>
