@@ -12,9 +12,9 @@
   const exercises = [
     {
       title: 'Walking + counting drills',
-      description: 'Walk while counting backward by 3s or 7s',
+      description: 'Walk while counting backward by 1s, 2s, 3s or 7s',
       icon: '/activities/icon-activity-green.svg',
-      to: '/activities/dual-task/move-and-think',
+      to: '/activities/dual-task/walking-counting',
     },
     {
       title: 'Seated balance work',
@@ -125,9 +125,9 @@
             The Research
           </h2>
           <p class="mt-4 max-w-[1050px] text-base leading-[1.45] text-[var(--bn-muted)] sm:text-lg">
-            Doing a simple movement and a thinking task at the same time works the body and brain
-            together. This kind of practice supports steadier walking and balance, and every
-            exercise can be done seated, standing, or with limited mobility.
+            Pairing movement with a mental task — counting backward while walking, naming animals
+            while balancing — drives neuroplastic change after stroke. The combined load is what
+            makes the brain rewire.
           </p>
           <div class="mt-6">
             <p class="text-sm font-bold tracking-wide text-[var(--bn-muted)] uppercase">
