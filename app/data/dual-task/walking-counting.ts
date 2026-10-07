@@ -33,3 +33,11 @@ export const countLevels: CountLevel[] = [
   { level: 3, label: 'Level 3', description: 'Count back by 3s from 50', start: 50, step: 3 },
   { level: 4, label: 'Level 4', description: 'Count back by 7s from 100', start: 100, step: 7 },
 ]
+
+export const COUNT_STEP_MS = 2000
+
+export function nextCount(current: number, step: number): { current: number; finished: boolean } {
+  const next = current - step
+  if (next < 0) return { current, finished: true }
+  return { current: next, finished: false }
+}

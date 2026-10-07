@@ -11,7 +11,7 @@
 
   const exercises = [
     {
-      title: 'Walking + counting drills',
+      title: 'Walking + Counting drills',
       description: 'Walk or March while counting backward by 1s, 2s, 3s or 7s',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/dual-task/walking-counting',
@@ -23,13 +23,13 @@
       to: '/activities/dual-task/reach-and-reflect',
     },
     {
-      title: 'Resistance + recall',
+      title: 'Resistance + Recall',
       description: 'Light bands paired with memory recall tasks',
       icon: '/activities/icon-book-orange.svg',
       to: null,
     },
     {
-      title: 'Tai chi and slow movement',
+      title: 'Tai chi and Slow Movement',
       description: 'Mindful sequences that load attention and motor systems',
       icon: '/activities/icon-hash.svg',
       to: null,

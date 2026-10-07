@@ -2,6 +2,8 @@
   import {
     movements,
     countLevels,
+    nextCount,
+    COUNT_STEP_MS,
     type CountLevel,
     type Movement,
   } from '~/data/dual-task/walking-counting'
@@ -15,8 +17,25 @@
   const said = ref<number[]>([])
   const paused = ref(false)
 
-  const nextNumber = computed(() => current.value - level.value.step)
-  const isLast = computed(() => nextNumber.value < 0)
+  let countTimer: ReturnType<typeof setInterval> | undefined
+
+  function clearTimers() {
+    if (countTimer) clearInterval(countTimer)
+    countTimer = undefined
+  }
+
+  function armTimers() {
+    clearTimers()
+    countTimer = setInterval(() => {
+      const next = nextCount(current.value, level.value.step)
+      if (next.finished) {
+        finish()
+        return
+      }
+      current.value = next.current
+      said.value.push(next.current)
+    }, COUNT_STEP_MS)
+  }
 
   function chooseMovement(m: Movement) {
     movement.value = m
@@ -33,28 +52,31 @@
     said.value = [level.value.start]
     paused.value = false
     step.value = 'drill'
+    armTimers()
   }
 
-  function next() {
-    if (isLast.value) {
-      step.value = 'done'
-      return
-    }
-    current.value = nextNumber.value
-    said.value.push(current.value)
+  function pause() {
+    paused.value = true
+    clearTimers()
   }
 
-  function speak(text: string) {
-    if (!import.meta.client || !('speechSynthesis' in window)) return
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.volume = 0.5
-    window.speechSynthesis.speak(utterance)
+  function resume() {
+    paused.value = false
+    armTimers()
+  }
+
+  function finish() {
+    clearTimers()
+    paused.value = false
+    step.value = 'done'
   }
 
   function restart() {
+    clearTimers()
     step.value = 'move'
   }
+
+  onBeforeUnmount(clearTimers)
 
   const bigButton =
     'flex min-h-[72px] w-full items-center justify-center rounded-2xl px-6 text-xl font-bold focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:outline-none'
@@ -108,7 +130,7 @@
       </button>
     </div>
 
-    <!-- Step 3: drill -->
+    <!-- Step 3: drill (counts down on its own) -->
     <div v-else-if="step === 'drill'">
       <p class="text-lg font-semibold text-[var(--bn-muted)]">
         {{ movement.label }} · {{ level.description }}
@@ -119,7 +141,7 @@
         <p class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">
           Paused. Take your time.
         </p>
-        <button type="button" :class="[primary, 'mt-6']" @click="paused = false">Keep going</button>
+        <button type="button" :class="[primary, 'mt-6']" @click="resume">Keep going</button>
       </div>
 
       <template v-else>
@@ -130,32 +152,19 @@
           {{ current }}
         </p>
         <p class="mt-4 text-center text-xl text-[var(--bn-navy)]">
-          Keep moving. Say the next number out loud, then tap below to check.
+          Keep moving. Say the next number out loud before it appears.
         </p>
 
         <div class="mt-8 flex flex-col gap-4">
-          <button type="button" :class="primary" @click="next">
-            {{ isLast ? 'Finish' : 'Next number' }}
-          </button>
-          <button type="button" :class="secondary" @click="speak(String(current))">
-            Read aloud
-          </button>
+          <button type="button" :class="primary" @click="pause">Pause</button>
         </div>
       </template>
 
-      <div class="mt-6 flex justify-between">
-        <button
-          v-if="!paused"
-          type="button"
-          class="min-h-[72px] px-4 text-lg font-semibold text-[var(--bn-navy)]"
-          @click="paused = true"
-        >
-          Pause
-        </button>
+      <div class="mt-6 flex justify-end">
         <button
           type="button"
-          class="ml-auto min-h-[72px] px-4 text-lg font-semibold text-orange-800"
-          @click="step = 'done'"
+          class="min-h-[72px] px-4 text-lg font-semibold text-orange-800"
+          @click="finish"
         >
           End
         </button>
