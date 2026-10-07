@@ -20,7 +20,7 @@
       title: 'Seated balance work',
       description: 'Reach and reflect — naming categories while moving',
       icon: '/activities/icon-grid.svg',
-      to: null,
+      to: '/activities/dual-task/reach-and-reflect',
     },
     {
       title: 'Resistance + recall',
@@ -185,7 +185,7 @@
         <hr class="my-12 border-0 border-t border-[var(--bn-border)]" />
 
         <!-- Try It Now -->
-        <ActivitiesDualTaskMoveAndThinkTryItNow />
+        <ActivitiesDualTaskReachAndReflectTryItNow />
 
         <hr class="my-12 border-0 border-t border-[var(--bn-border)]" />
 
