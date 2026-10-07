@@ -9,14 +9,11 @@
   const route = useRoute()
 
   const activities: NavLink[] = [
-    {
-      label: 'Reminiscence Therapy',
-      href: '/activities/reminiscence/life-story',
-      match: '/activities/reminiscence',
-    },
+    { label: 'Reminiscence Therapy', href: '/activities/reminiscence/life-story', match: '/activities/reminiscence' },
     { label: 'Coloring & Visual Art', href: '/coloring', match: '/coloring' },
     { label: 'Puzzles & Games', href: '/puzzles', match: '/puzzles' },
     { label: 'Music Therapy & Rhythm', href: '/music', match: '/music' },
+    { label: 'Writing & Calligraphy',  href: '/writing',  match: '/writing' }
   ]
 
   const comingSoon = [

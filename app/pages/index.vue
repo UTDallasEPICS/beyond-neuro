@@ -33,6 +33,12 @@
       icon: '/activities/icon-activity-green.svg',
       to: '/music',
     },
+    {
+      title: 'Writing & Calligraphy',
+      description: 'Practice typing and handwriting with guided words and letter tracing at your own pace.',
+      icon: '/activities/icon-book-orange.svg',
+      to: '/writing',
+    },
   ]
 </script>
 
