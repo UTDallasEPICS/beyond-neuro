@@ -66,11 +66,7 @@ function distanceOutside(val: number, range: [number, number]) {
   return 0
 }
 
-const streakLabel = computed(() =>
-  streak.value > 0
-    ? `${streak.value} day${streak.value === 1 ? '' : 's'} of steady care.`
-    : 'Today starts a fresh streak.'
-)
+
 
 const plantSvg = computed(() => {
   const g = Math.max(0, Math.min(100, growth.value))
@@ -171,7 +167,7 @@ function advanceDay() {
 
 <template>
   <div class="app-shell flex min-h-screen">
-    <!-- Sidebar -->
+    
     <aside class="flex w-64 shrink-0 flex-col bg-[#1E1B4B] p-5 text-white">
       <div class="flex items-center gap-2 px-2 py-3">
         <img

@@ -97,7 +97,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="app-shell flex min-h-screen">
-    <
+    
     <aside class="flex w-64 shrink-0 flex-col bg-[#1E1B4B] p-5 text-white">
       <div class="flex items-center gap-2 px-2 py-3">
         <img
