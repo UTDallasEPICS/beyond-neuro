@@ -12,7 +12,7 @@
   const exercises = [
     {
       title: 'Walking + counting drills',
-      description: 'Walk while counting backward by 1s, 2s, 3s or 7s',
+      description: 'Walk or March while counting backward by 1s, 2s, 3s or 7s',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/dual-task/walking-counting',
     },
