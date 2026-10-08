@@ -82,8 +82,10 @@
     <!-- the sidebar (the code is in app/components/AppSidebar.vue) -->
     <AppSidebar />
 
-    <!-- the page content - flex-1 takes all the space next to the sidebar -->
-    <div class="min-w-0 flex-1 px-4 py-10 lg:px-10">
+    <!-- the page content - flex-1 takes all the space next to the sidebar
+         px-6 on phones gives wider side margins, so there is room to scroll the page with a finger
+         without touching a writing strip (the strips do not scroll - touch-none) -->
+    <div class="min-w-0 flex-1 px-6 py-10 lg:px-10">
       <!-- small green label above the heading, like "Finish the Thought Activity Complete" in figma -->
       <p class="text-2xl font-semibold text-[#2f6b3c]">Reality Orientation</p>
 
@@ -104,8 +106,9 @@
       <!-- text-[28px] - everything is 24px (about 18pt) or bigger (rule 1) -->
       <p class="mt-2 text-[28px] text-[#27265f]">Today is {{ todayLabel }}</p>
 
-      <!-- white rounded card with a soft shadow, like the figma design -->
-      <div class="mt-6 rounded-[20px] bg-white p-4 shadow-sm sm:p-8">
+      <!-- white rounded card with a soft shadow, like the figma design
+           p-5 on phones adds a little more space around the days for scrolling -->
+      <div class="mt-6 rounded-[20px] bg-white p-5 shadow-sm sm:p-8">
         <!-- the 7 days stacked top to bottom: sunday first, saturday last -->
         <div class="flex flex-col overflow-hidden rounded-2xl border-2 border-[#e6e0d6]">
           <!-- phones: date on top of the writing space (flex-col)

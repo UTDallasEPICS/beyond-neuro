@@ -90,10 +90,18 @@
 </script>
 
 <template>
-  <div class="drawing-pad">
+  <div class="flex flex-col gap-3 px-3 py-2 sm:flex-row sm:items-center">
+    <!-- phones (flex-col): the writing strip on top, the erase button underneath,
+         so the strip can use the full width of the screen
+         bigger screens (sm:flex-row): the writing strip on the left, the erase button on the right -->
+
+    <!-- w-full: full width on phones. sm:w-auto sm:flex-1: stretch to fill the row on bigger screens
+         h-40 = 160px tall
+         touch-none: the page does not scroll while someone writes with a finger
+         notebook-lines: faint lines from the small <style> section below -->
     <canvas
       ref="canvas"
-      class="drawing-surface"
+      class="notebook-lines block h-40 w-full min-w-0 cursor-crosshair touch-none bg-white sm:w-auto sm:flex-1"
       role="img"
       :aria-label="`Handwriting area for ${label}`"
       @pointerdown="startDrawing"
@@ -102,59 +110,31 @@
       @pointercancel="stopDrawing"
     ></canvas>
 
-    <!-- the aria-label tells screen readers which day this button erases (WCAG 2.4.6)
+    <!-- min-h-24 / min-w-24 = 96px, about 72pt (rule 9). shrink-0 stops it from getting squished
+         self-center: centered under the strip on phones
+         the aria-label tells screen readers which day this button erases (WCAG 2.4.6)
          it starts with "Erase" so it matches the word people see on the button (WCAG 2.5.3) -->
-    <button class="erase-button" :aria-label="`Erase ${label}`" @click="erase">Erase</button>
+    <button
+      class="min-h-24 min-w-24 shrink-0 cursor-pointer self-center rounded-full border-2 border-[#27265f] bg-white px-4 text-2xl text-[#27265f] focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#27265f]"
+      :aria-label="`Erase ${label}`"
+      @click="erase"
+    >
+      Erase
+    </button>
   </div>
 </template>
 
 <style scoped>
-  /* the writing strip on the left, the erase button on the right */
-  .drawing-pad {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
-  }
-
-  /* flex: 1 makes the writing strip stretch across all the space it can get
-   touch-action: none stops the page from scrolling while someone writes with a finger
-   the repeating gradient draws faint notebook lines to help people write in a straight line -
-   it is only a background, so it is not part of the drawing itself */
-  .drawing-surface {
-    display: block;
-    flex: 1;
-    min-width: 0;
-    height: 160px;
-    touch-action: none;
-    cursor: crosshair;
-    background-color: var(--contrast);
+  /* the faint notebook lines are a repeating pattern - too long and fiddly to write as a
+   tailwind class, so this one stays as normal css (a 2px line every 54px).
+   it is only a background, so erase never removes it and it is not part of the drawing */
+  .notebook-lines {
     background-image: repeating-linear-gradient(
       to bottom,
       transparent 0,
       transparent 52px,
-      var(--card-border) 52px,
-      var(--card-border) 54px
+      #e6e0d6 52px,
+      #e6e0d6 54px
     );
-  }
-
-  /* 96px is about 72pt - the client's minimum button size (rule 9)
-   flex-shrink: 0 stops the button from getting squished on small screens */
-  .erase-button {
-    flex-shrink: 0;
-    min-width: 96px;
-    min-height: 96px;
-    padding: 0 16px;
-    font-size: 24px;
-    color: var(--theme);
-    background-color: var(--contrast);
-    border: 2px solid var(--theme);
-    border-radius: 999px;
-    cursor: pointer;
-  }
-  .erase-button:focus-visible {
-    outline: 4px solid var(--theme);
-    outline-offset: 4px;
   }
 </style>
