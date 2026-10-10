@@ -8,8 +8,8 @@
   })
 
   const tabs = [
-    { label: 'Mirrored coloring', to: '/coloring' },
-    { label: 'Paint by number', to: '/coloring/paint-by-number' },
+    { label: 'Mirrored coloring', to: '/activities/coloring' },
+    { label: 'Paint by number', to: '/activities/coloring/paint-by-number' },
   ]
 </script>
 

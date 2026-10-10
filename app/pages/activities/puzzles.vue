@@ -8,8 +8,8 @@
   })
 
   const tabs = [
-    { label: 'Matching game', to: '/puzzles' },
-    { label: 'Word search', to: '/puzzles/word-search' },
+    { label: 'Matching game', to: '/activities/puzzles' },
+    { label: 'Word search', to: '/activities/puzzles/word-search' },
   ]
 </script>
 

@@ -8,8 +8,8 @@
   })
 
   const tabs = [
-    { label: 'Rhythm exercise', to: '/music' },
-    { label: 'Sing along', to: '/music/sing-along' },
+    { label: 'Rhythm exercise', to: '/activities/music' },
+    { label: 'Sing along', to: '/activities/music/sing-along' },
   ]
 </script>
 

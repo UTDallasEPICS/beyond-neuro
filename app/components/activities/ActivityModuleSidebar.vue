@@ -14,9 +14,13 @@
       href: '/activities/reminiscence/life-story',
       match: '/activities/reminiscence',
     },
-    { label: 'Coloring & Visual Art', href: '/coloring', match: '/coloring' },
-    { label: 'Puzzles & Games', href: '/puzzles', match: '/puzzles' },
-    { label: 'Music Therapy & Rhythm', href: '/music', match: '/music' },
+    {
+      label: 'Coloring & Visual Art',
+      href: '/activities/coloring',
+      match: '/activities/coloring',
+    },
+    { label: 'Puzzles & Games', href: '/activities/puzzles', match: '/activities/puzzles' },
+    { label: 'Music Therapy & Rhythm', href: '/activities/music', match: '/activities/music' },
   ]
 
   const comingSoon = [

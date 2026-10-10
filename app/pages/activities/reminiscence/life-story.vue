@@ -71,7 +71,7 @@
       title: 'Music Therapy & Rhythm',
       description:
         'Rhythmic exercises and music-based interventions that activate memory circuits.',
-      to: '/music',
+      to: '/activities/music',
     },
     {
       tag: 'Cognitive',
@@ -79,7 +79,7 @@
       title: 'Puzzles & Games',
       description:
         'Playful memory and attention practice that pairs well with reminiscence sessions.',
-      to: '/puzzles',
+      to: '/activities/puzzles',
     },
     {
       tag: 'Fine Motor',

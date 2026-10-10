@@ -19,19 +19,19 @@
       description:
         'Calm, untimed coloring — mirrored patterns and paint-by-number pictures from around the world.',
       icon: '/activities/icon-image.svg',
-      to: '/coloring',
+      to: '/activities/coloring',
     },
     {
       title: 'Puzzles & Games',
       description: 'A flower matching game and a large-letter word search. No timers, no scores.',
       icon: '/activities/icon-grid.svg',
-      to: '/puzzles',
+      to: '/activities/puzzles',
     },
     {
       title: 'Music Therapy & Rhythm',
       description: 'Follow a calming rhythm, or sing along to a favorite song from your device.',
       icon: '/activities/icon-activity-green.svg',
-      to: '/music',
+      to: '/activities/music',
     },
   ]
 </script>
