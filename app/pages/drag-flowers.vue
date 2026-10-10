@@ -7,13 +7,28 @@ const navItems = [
   { label: 'Caregiver Corner', icon: 'i-lucide-map-pin' },
 ]
 
-type FlowerType = 'rose' | 'tulip' | 'daisy' | 'sunflower'
+type FlowerType = 'rose' | 'tulip' | 'daisy' | 'sunflower' | 'lily' | 'lavender'
+type Pot = { type: FlowerType; planted: boolean }
 
-const flowers: { type: FlowerType; label: string }[] = [
-  { type: 'rose', label: 'Rose' },
-  { type: 'tulip', label: 'Tulip' },
-  { type: 'daisy', label: 'Daisy' },
-  { type: 'sunflower', label: 'Sunflower' },
+const flowerLabels: Record<FlowerType, string> = {
+  rose: 'Rose',
+  tulip: 'Tulip',
+  daisy: 'Daisy',
+  sunflower: 'Sunflower',
+  lily: 'Lily',
+  lavender: 'Lavender',
+}
+
+const levels: { types: FlowerType[]; showLabel: boolean; silhouette: number }[] = [
+  { types: ['rose'], showLabel: true, silhouette: 0.4 },
+  { types: ['rose', 'tulip'], showLabel: true, silhouette: 0.4 },
+  { types: ['rose', 'tulip', 'daisy'], showLabel: true, silhouette: 0 },
+  { types: ['rose', 'tulip', 'daisy', 'sunflower'], showLabel: false, silhouette: 0.3 },
+  {
+    types: ['rose', 'tulip', 'daisy', 'sunflower', 'lily', 'lavender'],
+    showLabel: false,
+    silhouette: 0.15,
+  },
 ]
 
 const flowerSvg: Record<FlowerType, string> = {
@@ -59,57 +74,109 @@ const flowerSvg: Record<FlowerType, string> = {
     <circle cx="30" cy="28" r="9" fill="#6B4F3A"/>
     <path d="M30 48 L30 58" stroke="#3F6B4A" stroke-width="3" stroke-linecap="round"/>
   `,
+  lily: `
+    <g transform="translate(30 28)">
+      ${Array.from({ length: 6 }, (_, i) => `<path d="M0 0 C 7 -6, 7 -17, 0 -23 C -7 -17, -7 -6, 0 0 Z" transform="rotate(${i * 60})" fill="#F4A6C0" stroke="#D9799C" stroke-width="0.8"/>`).join('')}
+      <circle r="3.5" fill="#F2C14E"/>
+    </g>
+    <path d="M30 46 L30 58" stroke="#3F6B4A" stroke-width="3" stroke-linecap="round"/>
+  `,
+  lavender: `
+    <path d="M30 58 L30 16" stroke="#3F6B4A" stroke-width="2.5" stroke-linecap="round"/>
+    ${Array.from({ length: 6 }, (_, i) => `<ellipse cx="${i % 2 === 0 ? 25 : 35}" cy="${16 + i * 6}" rx="4" ry="5.5" fill="#8C6FC9"/>`).join('')}
+    <ellipse cx="30" cy="10" rx="3.5" ry="5" fill="#A68BE0"/>
+  `,
 }
 
-const potSvg = `
-  <ellipse cx="30" cy="30" rx="18" ry="6" fill="#DCD4F5"/>
-  <path d="M16 30 L20 46 Q30 50 40 46 L44 30 Z" fill="#B9A9E8"/>
+const potShape = `
+  <rect x="11" y="52" width="38" height="7" rx="2" fill="#C97B5A"/>
+  <path d="M14 59 L18 76 Q30 80 42 76 L46 59 Z" fill="#B5684A"/>
 `
 
-const beds = ref<{ type: FlowerType; label: string; planted: boolean }[]>([
-  { type: 'rose', label: 'Rose bed', planted: false },
-  { type: 'tulip', label: 'Tulip bed', planted: false },
-  { type: 'daisy', label: 'Daisy bed', planted: false },
-  { type: 'sunflower', label: 'Sunflower bed', planted: false },
-])
+const levelIndex = ref(0)
+const pots = ref<Pot[]>([])
+const tray = ref<FlowerType[]>([])
+const selected = ref<FlowerType | null>(null)
+const shakePot = ref<FlowerType | null>(null)
+const mistakes = ref(0)
+const message = ref('')
 
-const draggingType = ref<FlowerType | null>(null)
-const shakeBed = ref<FlowerType | null>(null)
-const message = ref('Drag each flower into its matching bed.')
+const level = computed(() => levels[levelIndex.value] ?? levels[0]!)
+const isLastLevel = computed(() => levelIndex.value >= levels.length - 1)
+const plantedCount = computed(() => pots.value.filter((p) => p.planted).length)
+const levelComplete = computed(
+  () => pots.value.length > 0 && plantedCount.value === pots.value.length
+)
+const stars = computed(() => (mistakes.value === 0 ? 3 : mistakes.value <= 2 ? 2 : 1))
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${Math.min(pots.value.length || 1, 3)}, minmax(0, 1fr))`,
+}))
 
-const plantedCount = computed(() => beds.value.filter((b) => b.planted).length)
-const allPlanted = computed(() => plantedCount.value === beds.value.length)
-
-function handleDragStart(type: FlowerType) {
-  draggingType.value = type
+function shuffle<T>(items: T[]): T[] {
+  const copy = [...items]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const a = copy[i] as T
+    const b = copy[j] as T
+    copy[i] = b
+    copy[j] = a
+  }
+  return copy
 }
 
-function handleDrop(bed: { type: FlowerType; label: string; planted: boolean }) {
-  if (!draggingType.value || bed.planted) return
+function startLevel(index: number) {
+  levelIndex.value = index
+  const types = (levels[index] ?? levels[0]!).types
+  pots.value = shuffle(types).map((type) => ({ type, planted: false }))
+  tray.value = shuffle(types)
+  selected.value = null
+  shakePot.value = null
+  mistakes.value = 0
+  message.value =
+    types.length === 1 ? 'Match the flower to its pot.' : 'Match each flower to its own pot.'
+}
 
-  if (draggingType.value === bed.type) {
-    bed.planted = true
-    message.value = allPlanted.value ? 'Every bed is planted. Nicely done.' : `${bed.label} planted.`
+function isPlanted(type: FlowerType) {
+  return pots.value.find((p) => p.type === type)?.planted ?? false
+}
+
+function selectFlower(type: FlowerType) {
+  if (isPlanted(type)) return
+  selected.value = selected.value === type ? null : type
+}
+
+function plant(pot: Pot) {
+  const flower = selected.value
+  if (!flower || pot.planted) return
+
+  if (flower === pot.type) {
+    pot.planted = true
+    selected.value = null
+    message.value = levelComplete.value ? 'Level complete.' : 'Matched.'
   } else {
-    shakeBed.value = bed.type
-    message.value = `That flower doesn't belong in the ${bed.label.toLowerCase()}.`
+    mistakes.value += 1
+    shakePot.value = pot.type
+    message.value = 'That flower belongs in a different pot. Try again.'
     setTimeout(() => {
-      shakeBed.value = null
+      shakePot.value = null
     }, 400)
   }
-
-  draggingType.value = null
 }
 
-function resetGarden() {
-  beds.value.forEach((b) => (b.planted = false))
-  message.value = 'Drag each flower into its matching bed.'
+function potMarkup(pot: Pot) {
+  const flower = flowerSvg[pot.type]
+  if (pot.planted) return `<g transform="translate(0 -2)">${flower}</g>${potShape}`
+  if (level.value.silhouette === 0) return potShape
+  return `<g opacity="${level.value.silhouette}" style="filter: grayscale(1)" transform="translate(0 -2)">${flower}</g>${potShape}`
 }
+
+onMounted(() => {
+  startLevel(0)
+})
 </script>
 
 <template>
   <div class="app-shell flex min-h-screen">
-    <!-- Sidebar -->
     <aside class="flex w-64 shrink-0 flex-col bg-[#1E1B4B] p-5 text-white">
       <div class="flex items-center gap-2 px-2 py-3">
         <img
@@ -147,74 +214,98 @@ function resetGarden() {
     <main class="flex-1 bg-[#FBEEE0] px-10 py-8">
       <header class="mb-6">
         <p class="text-sm font-semibold tracking-[0.2em] text-emerald-600 uppercase">
-          Garden Activity · Planting
+          Garden Activity · Level {{ levelIndex + 1 }} of {{ levels.length }}
         </p>
         <h1 class="mt-2 font-['Georgia'] text-4xl font-black tracking-tight text-[#1E1B4B]">
-          Plant each flower in its bed
+          Match each flower to its pot
         </h1>
         <p class="mt-2 max-w-xl text-slate-600">
-          Drag a flower from the tray below into the bed that matches it.
+          Drag a flower onto its pot, or tap a flower and then tap the pot.
         </p>
+
+        <div class="mt-4 flex gap-2">
+          <span
+            v-for="(_, i) in levels"
+            :key="i"
+            class="h-2 w-10 rounded-full transition"
+            :class="i < levelIndex ? 'bg-emerald-500' : i === levelIndex ? 'bg-[#1E1B4B]' : 'bg-[#c9c0f5]'"
+          />
+        </div>
       </header>
 
-      <!-- Lavender card -->
       <section class="rounded-3xl bg-[#EAE6FB] p-10 shadow-sm">
-        <!-- Beds -->
-        <div class="grid grid-cols-2 gap-5 sm:grid-cols-4">
+        <div class="mx-auto grid max-w-2xl gap-5" :style="gridStyle">
           <div
-            v-for="bed in beds"
-            :key="bed.type"
-            class="flex h-32 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-4 transition"
+            v-for="pot in pots"
+            :key="pot.type"
+            class="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-4 transition"
             :class="[
-              bed.planted
-                ? 'border-emerald-400 bg-white'
-                : 'border-[#c9c0f5] bg-white/50',
-              shakeBed === bed.type ? 'animate-shake' : '',
+              pot.planted ? 'border-emerald-400 bg-white' : 'border-[#c9c0f5] bg-white/50',
+              selected && !pot.planted ? 'cursor-pointer hover:border-[#1E1B4B]' : '',
+              shakePot === pot.type ? 'animate-shake' : '',
             ]"
             @dragover.prevent
-            @drop="handleDrop(bed)"
+            @drop="plant(pot)"
+            @click="plant(pot)"
           >
-            <svg
-              width="52"
-              height="52"
-              viewBox="0 0 60 60"
-              v-html="bed.planted ? flowerSvg[bed.type] : potSvg"
-            />
-            <span class="text-xs font-semibold text-[#1E1B4B]">{{ bed.label }}</span>
+            <svg width="72" height="98" viewBox="0 0 60 82" v-html="potMarkup(pot)" />
+            <span class="h-4 text-xs font-semibold text-[#1E1B4B]">
+              {{ level.showLabel || pot.planted ? flowerLabels[pot.type] : '' }}
+            </span>
           </div>
         </div>
 
-        <!-- Flower tray -->
-        <div class="mt-10 flex flex-wrap justify-center gap-4">
+        <div v-if="!levelComplete" class="mt-10 flex flex-wrap justify-center gap-4">
           <div
-            v-for="flower in flowers"
-            :key="flower.type"
-            class="flex flex-col items-center gap-1 rounded-2xl border border-[#c9c0f5] bg-white px-6 py-4 transition"
-            :class="
-              beds.find((b) => b.type === flower.type)?.planted
+            v-for="type in tray"
+            :key="type"
+            class="flex flex-col items-center gap-1 rounded-2xl border bg-white px-6 py-4 transition"
+            :class="[
+              isPlanted(type)
                 ? 'pointer-events-none opacity-30'
-                : 'cursor-grab active:cursor-grabbing hover:shadow-md'
-            "
-            :draggable="!beds.find((b) => b.type === flower.type)?.planted"
-            @dragstart="handleDragStart(flower.type)"
+                : 'cursor-grab hover:shadow-md active:cursor-grabbing',
+              selected === type ? 'border-[#1E1B4B] ring-2 ring-[#1E1B4B]/30' : 'border-[#c9c0f5]',
+            ]"
+            :draggable="!isPlanted(type)"
+            @dragstart="selected = type"
+            @click="selectFlower(type)"
           >
-            <svg width="40" height="40" viewBox="0 0 60 60" v-html="flowerSvg[flower.type]" />
-            <span class="text-xs font-medium text-slate-500">{{ flower.label }}</span>
+            <svg width="44" height="44" viewBox="0 0 60 60" v-html="flowerSvg[type]" />
+            <span class="text-xs font-medium text-slate-500">{{ flowerLabels[type] }}</span>
           </div>
+        </div>
+
+        <div v-else class="mt-10 text-center">
+          <p class="font-['Georgia'] text-2xl font-bold text-[#1E1B4B]">
+            {{ isLastLevel ? 'All levels complete' : `Level ${levelIndex + 1} complete` }}
+          </p>
+          <p class="mt-2 text-2xl tracking-widest text-amber-500">
+            {{ '★'.repeat(stars) }}<span class="text-[#c9c0f5]">{{ '★'.repeat(3 - stars) }}</span>
+          </p>
+          <p class="mt-1 text-sm text-slate-500">
+            {{ mistakes === 0 ? 'No mistakes.' : `${mistakes} mistake${mistakes === 1 ? '' : 's'}.` }}
+          </p>
+          <button
+            type="button"
+            class="mt-5 rounded-full bg-[#1E1B4B] px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2a2566]"
+            @click="startLevel(isLastLevel ? 0 : levelIndex + 1)"
+          >
+            {{ isLastLevel ? 'Play again' : 'Next level' }}
+          </button>
         </div>
 
         <p class="mt-8 text-center text-sm text-slate-500">{{ message }}</p>
 
         <div class="mt-6 flex items-center justify-center gap-4">
           <span class="text-xs font-semibold tracking-wide text-slate-400 uppercase">
-            {{ plantedCount }} / {{ beds.length }} planted
+            {{ plantedCount }} / {{ pots.length }} matched · {{ mistakes }} mistake{{ mistakes === 1 ? '' : 's' }}
           </span>
           <button
             type="button"
             class="rounded-full border border-[#1E1B4B] px-5 py-1.5 text-xs font-semibold text-[#1E1B4B] transition hover:bg-[#1E1B4B] hover:text-white"
-            @click="resetGarden"
+            @click="startLevel(levelIndex)"
           >
-            Reset
+            Restart level
           </button>
         </div>
       </section>
@@ -224,9 +315,16 @@ function resetGarden() {
 
 <style scoped>
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
 }
 .animate-shake {
   animation: shake 0.3s ease-in-out;

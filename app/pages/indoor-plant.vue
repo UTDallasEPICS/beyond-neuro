@@ -7,7 +7,6 @@ const navItems = [
   { label: 'Caregiver Corner', icon: 'i-lucide-map-pin' },
 ]
 
-const STORAGE_KEY = 'plant-ritual-state-v1'
 const WATER_IDEAL: [number, number] = [40, 70]
 const LIGHT_IDEAL: [number, number] = [50, 80]
 
@@ -20,43 +19,6 @@ const light = ref(60)
 const message = ref("Set today's water and light, then advance.")
 const bump = ref(false)
 
-onMounted(() => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      if (typeof parsed.day === 'number') {
-        day.value = parsed.day
-        streak.value = parsed.streak
-        health.value = parsed.health
-        growth.value = parsed.growth
-        water.value = parsed.water
-        light.value = parsed.light
-      }
-    }
-  } catch {
-    // storage unavailable — start fresh
-  }
-})
-
-function save() {
-  try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        day: day.value,
-        streak: streak.value,
-        health: health.value,
-        growth: growth.value,
-        water: water.value,
-        light: light.value,
-      })
-    )
-  } catch {
-    // ignore
-  }
-}
-
 function inRange(val: number, range: [number, number]) {
   return val >= range[0] && val <= range[1]
 }
@@ -66,56 +28,127 @@ function distanceOutside(val: number, range: [number, number]) {
   return 0
 }
 
+function leafSvg(
+  x: number,
+  y: number,
+  angle: number,
+  len: number,
+  wid: number,
+  fill: string,
+  dark: string,
+  vein: string
+) {
+  const shape = `M0 0 C ${wid} ${-len * 0.2}, ${wid * 0.85} ${-len * 0.7}, 0 ${-len} C ${-wid * 0.85} ${-len * 0.7}, ${-wid} ${-len * 0.2}, 0 0 Z`
+  const half = `M0 0 C ${-wid} ${-len * 0.2}, ${-wid * 0.85} ${-len * 0.7}, 0 ${-len} Z`
+  let veins = ''
+  for (let k = 1; k <= 3; k++) {
+    const vy = -len * 0.22 * k
+    const reach = wid * (0.62 - k * 0.1)
+    veins += `<path d="M0 ${vy} L${reach} ${vy - len * 0.12} M0 ${vy} L${-reach} ${vy - len * 0.12}" stroke="${vein}" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.7"/>`
+  }
+  return (
+    `<g transform="translate(${x} ${y}) rotate(${angle})">` +
+    `<path d="${shape}" fill="${fill}"/>` +
+    `<path d="${half}" fill="${dark}" opacity="0.35"/>` +
+    `<path d="M0 0 L0 ${-len * 0.95}" stroke="${vein}" stroke-width="1.3" fill="none" stroke-linecap="round"/>` +
+    veins +
+    `</g>`
+  )
+}
 
+function flowerSvg(fx: number, fy: number) {
+  const petal = (len: number, wid: number) =>
+    `M0 0 C ${wid} ${-len * 0.25}, ${wid * 0.9} ${-len * 0.8}, 0 ${-len} C ${-wid * 0.9} ${-len * 0.8}, ${-wid} ${-len * 0.25}, 0 0 Z`
+
+  let out = `<g transform="translate(${fx} ${fy})">`
+  const outer = petal(22, 9)
+  for (let i = 0; i < 8; i++) {
+    out += `<path d="${outer}" transform="rotate(${i * 45})" fill="#E58FB0" stroke="#D06F96" stroke-width="0.7"/>`
+  }
+  const inner = petal(15, 6.5)
+  for (let i = 0; i < 8; i++) {
+    out += `<path d="${inner}" transform="rotate(${i * 45 + 22.5})" fill="#F6C1D5" stroke="#E89AB8" stroke-width="0.5"/>`
+  }
+  out += `<circle r="5.5" fill="#E8B23D"/>`
+  for (let d = 0; d < 7; d++) {
+    const a = (d / 7) * Math.PI * 2
+    out += `<circle cx="${Math.cos(a) * 3}" cy="${Math.sin(a) * 3}" r="0.9" fill="#B8862A"/>`
+  }
+  out += `<circle r="1.2" fill="#B8862A"/></g>`
+  return out
+}
+
+function budSvg(bx: number, by: number) {
+  return (
+    `<g transform="translate(${bx} ${by})">` +
+    `<path d="M0 0 C 8 -4, 7 -16, 0 -20 C -7 -16, -8 -4, 0 0 Z" fill="#E58FB0" stroke="#D06F96" stroke-width="0.7"/>` +
+    `<path d="M0 0 C 3 -5, 3 -13, 0 -18" stroke="#F6C1D5" stroke-width="1.2" fill="none"/>` +
+    `<path d="M0 2 C -9 -2, -8 -8, -3 -10 M0 2 C 9 -2, 8 -8, 3 -10" stroke="#3F7A3F" stroke-width="2" fill="none" stroke-linecap="round"/>` +
+    `</g>`
+  )
+}
 
 const plantSvg = computed(() => {
   const g = Math.max(0, Math.min(100, growth.value))
   const h = Math.max(0, Math.min(100, health.value))
   const healthy = h >= 55
-  const leafColor = healthy ? '#7FA66B' : h >= 30 ? '#C9A14A' : '#A98A5E'
+  const mid = h >= 30
+
+  const leafFill = healthy ? '#5E9A52' : mid ? '#C9A14A' : '#A98A5E'
+  const leafDark = healthy ? '#3F7A3F' : mid ? '#9C7A2E' : '#7A6444'
+  const leafVein = healthy ? '#2F5F35' : mid ? '#7A5F22' : '#5C4A33'
   const stemColor = healthy ? '#3F6B4A' : '#7A6A4F'
   const droop = healthy ? 0 : (30 - Math.max(h, 0)) * 0.9
+  const droopAngle = healthy ? 0 : mid ? 18 : 40
 
   const stemHeight = 30 + g * 1.1
-  const leafPairs = 1 + Math.floor(g / 22)
   const hasFlower = g >= 85 && healthy
+  const hasBud = g >= 60 && g < 85 && healthy
 
   const parts: string[] = []
-  parts.push('<rect x="55" y="180" width="50" height="14" rx="3" fill="#6B4F3A"/>')
-  parts.push('<rect x="60" y="168" width="40" height="14" rx="2" fill="#7A5B43"/>')
+
+  parts.push('<path d="M52 168 L108 168 L102 194 Q80 198 58 194 Z" fill="#B5684A"/>')
+  parts.push('<rect x="49" y="164" width="62" height="9" rx="3" fill="#C97B5A"/>')
+  parts.push('<ellipse cx="80" cy="166" rx="26" ry="3" fill="#5A3E2B"/>')
 
   const baseX = 80
-  const baseY = 178
+  const baseY = 168
   const tipY = baseY - stemHeight
+  const ctrlX = baseX + droop
+  const ctrlY = (baseY + tipY) / 2
+  const endX = baseX + droop
+
   parts.push(
-    `<path d="M ${baseX} ${baseY} Q ${baseX + droop} ${(baseY + tipY) / 2} ${baseX + droop} ${tipY}" stroke="${stemColor}" stroke-width="5" fill="none" stroke-linecap="round"/>`
+    `<path d="M ${baseX} ${baseY} Q ${ctrlX} ${ctrlY} ${endX} ${tipY}" stroke="${stemColor}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`
   )
 
-  for (let i = 0; i < leafPairs; i++) {
-    const t = (i + 1) / (leafPairs + 0.4)
-    const y = baseY - stemHeight * t
-    const x = baseX + droop * t
-    const size = 16 + (g / 100) * 14
-    const sway = 24 + droop * 0.6
-    parts.push(
-      `<path d="M ${x} ${y} Q ${x - sway} ${y - size * 0.3} ${x - sway * 0.2} ${y - size} Q ${x + 6} ${y - size * 0.4} ${x} ${y}" fill="${leafColor}"/>`
-    )
-    parts.push(
-      `<path d="M ${x} ${y} Q ${x + sway} ${y - size * 0.3} ${x + sway * 0.2} ${y - size} Q ${x - 6} ${y - size * 0.4} ${x} ${y}" fill="${leafColor}"/>`
-    )
+  const pointAt = (t: number) => {
+    const u = 1 - t
+    return {
+      x: u * u * baseX + 2 * u * t * ctrlX + t * t * endX,
+      y: u * u * baseY + 2 * u * t * ctrlY + t * t * tipY,
+    }
+  }
+
+  const leafCount = Math.min(12, 2 + Math.floor(g / 10))
+  for (let i = 0; i < leafCount; i++) {
+    const t = 0.2 + 0.72 * (i / Math.max(1, leafCount - 1 || 1))
+    const { x, y } = pointAt(Math.min(t, 0.95))
+    const side = i % 2 === 0 ? -1 : 1
+    const len = (20 + g * 0.18) * (1 - 0.4 * t)
+    const wid = len * 0.42
+    const angle = side * (52 + droopAngle)
+    parts.push(leafSvg(x, y, angle, len, wid, leafFill, leafDark, leafVein))
   }
 
   if (hasFlower) {
-    const fx = baseX + droop
-    const fy = tipY - 6
-    let petals = ''
-    for (let p = 0; p < 5; p++) {
-      const angle = (p / 5) * Math.PI * 2
-      const px = fx + Math.cos(angle) * 10
-      const py = fy + Math.sin(angle) * 10
-      petals += `<circle cx="${px}" cy="${py}" r="7" fill="#E7C9DE"/>`
-    }
-    parts.push(petals + `<circle cx="${fx}" cy="${fy}" r="6" fill="#C9A14A"/>`)
+    parts.push(flowerSvg(endX, tipY - 4))
+  } else if (hasBud) {
+    parts.push(budSvg(endX, tipY + 2))
+  } else {
+    const len = 12 + g * 0.1
+    parts.push(leafSvg(endX, tipY + 2, -22 - droopAngle, len, len * 0.42, leafFill, leafDark, leafVein))
+    parts.push(leafSvg(endX, tipY + 2, 22 + droopAngle, len, len * 0.42, leafFill, leafDark, leafVein))
   }
 
   return parts.join('')
@@ -129,11 +162,6 @@ function resetRitual() {
   water.value = 50
   light.value = 60
   message.value = "Set today's water and light, then advance."
-  try {
-    localStorage.removeItem(STORAGE_KEY)
-  } catch {
-    // ignore
-  }
 }
 
 function advanceDay() {
@@ -158,7 +186,6 @@ function advanceDay() {
   }
 
   day.value += 1
-  save()
 
   bump.value = true
   setTimeout(() => (bump.value = false), 300)
@@ -167,7 +194,6 @@ function advanceDay() {
 
 <template>
   <div class="app-shell flex min-h-screen">
-    
     <aside class="flex w-64 shrink-0 flex-col bg-[#1E1B4B] p-5 text-white">
       <div class="flex items-center gap-2 px-2 py-3">
         <img
@@ -216,7 +242,7 @@ function advanceDay() {
             width="160"
             height="200"
             viewBox="0 0 160 200"
-            class="transition-transform duration-300"
+            class="overflow-visible transition-transform duration-300"
             :class="bump ? 'scale-[1.04]' : 'scale-100'"
             v-html="plantSvg"
           />
