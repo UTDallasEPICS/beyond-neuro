@@ -38,7 +38,7 @@ const levels: PlantLevel[] = [
     water: [45, 65],
     light: [55, 75],
     showTargets: true,
-    startHealth: 68,
+    startHealth: 70,
     startGrowth: 20,
     goalGrowth: 40,
     startWater: 30,
@@ -48,8 +48,8 @@ const levels: PlantLevel[] = [
     title: 'Find the balance',
     water: [42, 62],
     light: [48, 68],
-    showTargets: false,
-    startHealth: 65,
+    showTargets: true,
+    startHealth: 70,
     startGrowth: 28,
     goalGrowth: 48,
     startWater: 30,
@@ -59,8 +59,8 @@ const levels: PlantLevel[] = [
     title: 'A careful week',
     water: [48, 62],
     light: [58, 72],
-    showTargets: false,
-    startHealth: 62,
+    showTargets: true,
+    startHealth: 70,
     startGrowth: 42,
     goalGrowth: 64,
     startWater: 35,
@@ -70,8 +70,8 @@ const levels: PlantLevel[] = [
     title: 'Bring it to bloom',
     water: [50, 60],
     light: [60, 70],
-    showTargets: false,
-    startHealth: 60,
+    showTargets: true,
+    startHealth: 70,
     startGrowth: 64,
     goalGrowth: 85,
     startWater: 40,
@@ -110,6 +110,25 @@ function startLevel(index: number) {
 
 function inRange(val: number, range: [number, number]) {
   return val >= range[0] && val <= range[1]
+}
+
+function missedCareMessage(waterValue: number, lightValue: number, waterIdeal: Range, lightIdeal: Range) {
+  const issues = [
+    waterValue < waterIdeal[0]
+      ? { problem: 'too little water', fix: `raise water to ${waterIdeal[0]}–${waterIdeal[1]}%` }
+      : waterValue > waterIdeal[1]
+        ? { problem: 'too much water', fix: `lower water to ${waterIdeal[0]}–${waterIdeal[1]}%` }
+        : null,
+    lightValue < lightIdeal[0]
+      ? { problem: 'too little light', fix: `raise light to ${lightIdeal[0]}–${lightIdeal[1]}%` }
+      : lightValue > lightIdeal[1]
+        ? { problem: 'too much light', fix: `lower light to ${lightIdeal[0]}–${lightIdeal[1]}%` }
+        : null,
+  ].filter((issue) => issue !== null)
+
+  const problem = issues.map((issue) => issue.problem).join(' and ')
+  const fix = issues.map((issue) => issue.fix).join(' and ')
+  return `${problem.charAt(0).toUpperCase()}${problem.slice(1)}. ${fix.charAt(0).toUpperCase()}${fix.slice(1)}.`
 }
 function distanceOutside(val: number, range: [number, number]) {
   if (val < range[0]) return range[0] - val
@@ -267,9 +286,7 @@ function advanceDay() {
     const off = distanceOutside(w, waterIdeal) + distanceOutside(l, lightIdeal)
     streak.value = 0
     health.value = Math.max(0, health.value - Math.min(18, 4 + off * 0.3))
-    if (!waterGood && !lightGood) message.value = 'Water and light both drifted off today.'
-    else if (!waterGood) message.value = w < waterIdeal[0] ? 'A little thirsty today.' : 'A bit too much water today.'
-    else message.value = l < lightIdeal[0] ? 'Could have used more light.' : 'A little too much sun today.'
+    message.value = missedCareMessage(w, l, waterIdeal, lightIdeal)
   }
 
   day.value += 1
