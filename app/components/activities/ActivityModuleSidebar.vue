@@ -21,6 +21,11 @@
     },
     { label: 'Puzzles & Games', href: '/activities/puzzles', match: '/activities/puzzles' },
     { label: 'Music Therapy & Rhythm', href: '/activities/music', match: '/activities/music' },
+    {
+      label: 'Dual-Task Exercise',
+      href: '/activities/dual-task',
+      match: '/activities/dual-task',
+    },
   ]
 
   const comingSoon = [

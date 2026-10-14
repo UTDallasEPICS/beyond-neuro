@@ -33,6 +33,13 @@
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/music',
     },
+    {
+      title: 'Dual-Task Physical Exercise',
+      description:
+        'Move your body and think at the same time — walk while counting, or reach while naming things.',
+      icon: '/activities/icon-hash.svg',
+      to: '/activities/dual-task',
+    },
   ]
 </script>
 
