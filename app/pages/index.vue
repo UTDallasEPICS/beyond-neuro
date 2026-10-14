@@ -33,6 +33,7 @@
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/music',
     },
+<<<<<<< HEAD
     
     {
       title: 'Digital & VR Training',
@@ -42,6 +43,14 @@
       to: '/activities/digital-vr',
     },
 
+=======
+    {
+      title: 'Writing & Calligraphy',
+      description: 'Practice typing and handwriting with guided words and letter tracing at your own pace.',
+      icon: '/activities/icon-book-orange.svg',
+      to: '/writing',
+    },
+>>>>>>> origin/writing-and-calligraphy
   ]
 </script>
 
