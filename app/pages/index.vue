@@ -33,6 +33,15 @@
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/music',
     },
+    
+    {
+      title: 'Digital & VR Training',
+      description:
+        'Practice reaction time and counting U.S. money through interactive activities.',
+      icon: '/activities/icon-activity-green.svg',
+      to: '/activities/digital-vr',
+    },
+
   ]
 </script>
 

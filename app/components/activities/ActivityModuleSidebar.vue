@@ -21,6 +21,11 @@
     },
     { label: 'Puzzles & Games', href: '/activities/puzzles', match: '/activities/puzzles' },
     { label: 'Music Therapy & Rhythm', href: '/activities/music', match: '/activities/music' },
+    {
+  label: 'Digital & VR Training',
+  href: '/activities/digital-vr',
+  match: '/activities/digital-vr',
+},
   ]
 
   const comingSoon = [
