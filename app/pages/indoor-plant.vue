@@ -7,17 +7,106 @@ const navItems = [
   { label: 'Caregiver Corner', icon: 'i-lucide-map-pin' },
 ]
 
-const WATER_IDEAL: [number, number] = [40, 70]
-const LIGHT_IDEAL: [number, number] = [50, 80]
+type Range = [number, number]
+
+type PlantLevel = {
+  title: string
+  water: Range
+  light: Range
+  showTargets: boolean
+  startHealth: number
+  startGrowth: number
+  goalGrowth: number
+  startWater: number
+  startLight: number
+}
+
+const levels: PlantLevel[] = [
+  {
+    title: 'First watering',
+    water: [40, 70],
+    light: [50, 80],
+    showTargets: true,
+    startHealth: 70,
+    startGrowth: 8,
+    goalGrowth: 28,
+    startWater: 25,
+    startLight: 35,
+  },
+  {
+    title: 'Steady care',
+    water: [45, 65],
+    light: [55, 75],
+    showTargets: true,
+    startHealth: 68,
+    startGrowth: 20,
+    goalGrowth: 40,
+    startWater: 30,
+    startLight: 40,
+  },
+  {
+    title: 'Find the balance',
+    water: [42, 62],
+    light: [48, 68],
+    showTargets: false,
+    startHealth: 65,
+    startGrowth: 28,
+    goalGrowth: 48,
+    startWater: 30,
+    startLight: 80,
+  },
+  {
+    title: 'A careful week',
+    water: [48, 62],
+    light: [58, 72],
+    showTargets: false,
+    startHealth: 62,
+    startGrowth: 42,
+    goalGrowth: 64,
+    startWater: 35,
+    startLight: 85,
+  },
+  {
+    title: 'Bring it to bloom',
+    water: [50, 60],
+    light: [60, 70],
+    showTargets: false,
+    startHealth: 60,
+    startGrowth: 64,
+    goalGrowth: 85,
+    startWater: 40,
+    startLight: 45,
+  },
+]
+
+const levelIndex = ref(0)
+const level = computed(() => levels[levelIndex.value] ?? levels[0]!)
+const isLastLevel = computed(() => levelIndex.value >= levels.length - 1)
 
 const day = ref(1)
 const streak = ref(0)
 const health = ref(70)
-const growth = ref(4)
-const water = ref(50)
-const light = ref(60)
+const growth = ref(8)
+const water = ref(25)
+const light = ref(35)
 const message = ref("Set today's water and light, then advance.")
 const bump = ref(false)
+const levelComplete = ref(false)
+
+function startLevel(index: number) {
+  levelIndex.value = index
+  const next = levels[index] ?? levels[0]!
+  day.value = 1
+  streak.value = 0
+  health.value = next.startHealth
+  growth.value = next.startGrowth
+  water.value = next.startWater
+  light.value = next.startLight
+  levelComplete.value = false
+  message.value = next.showTargets
+    ? "Set today's water and light, then advance."
+    : 'Find a steady water and light, then advance.'
+}
 
 function inRange(val: number, range: [number, number]) {
   return val >= range[0] && val <= range[1]
@@ -155,21 +244,19 @@ const plantSvg = computed(() => {
 })
 
 function resetRitual() {
-  day.value = 1
-  streak.value = 0
-  health.value = 70
-  growth.value = 4
-  water.value = 50
-  light.value = 60
-  message.value = "Set today's water and light, then advance."
+  startLevel(levelIndex.value)
 }
 
 function advanceDay() {
+  if (levelComplete.value) return
+
   const w = water.value
   const l = light.value
+  const waterIdeal = level.value.water
+  const lightIdeal = level.value.light
 
-  const waterGood = inRange(w, WATER_IDEAL)
-  const lightGood = inRange(l, LIGHT_IDEAL)
+  const waterGood = inRange(w, waterIdeal)
+  const lightGood = inRange(l, lightIdeal)
 
   if (waterGood && lightGood) {
     streak.value += 1
@@ -177,19 +264,30 @@ function advanceDay() {
     growth.value = Math.min(100, growth.value + 3 + Math.min(streak.value, 5) * 0.4)
     message.value = streak.value >= 3 ? 'The consistency is showing.' : 'A good, steady day.'
   } else {
-    const off = distanceOutside(w, WATER_IDEAL) + distanceOutside(l, LIGHT_IDEAL)
+    const off = distanceOutside(w, waterIdeal) + distanceOutside(l, lightIdeal)
     streak.value = 0
     health.value = Math.max(0, health.value - Math.min(18, 4 + off * 0.3))
     if (!waterGood && !lightGood) message.value = 'Water and light both drifted off today.'
-    else if (!waterGood) message.value = w < WATER_IDEAL[0] ? 'A little thirsty today.' : 'A bit too much water today.'
-    else message.value = l < LIGHT_IDEAL[0] ? 'Could have used more light.' : 'A little too much sun today.'
+    else if (!waterGood) message.value = w < waterIdeal[0] ? 'A little thirsty today.' : 'A bit too much water today.'
+    else message.value = l < lightIdeal[0] ? 'Could have used more light.' : 'A little too much sun today.'
   }
 
   day.value += 1
 
+  if (growth.value >= level.value.goalGrowth && health.value >= 55) {
+    levelComplete.value = true
+    message.value = isLastLevel.value
+      ? 'Every level is complete. The plant is in bloom.'
+      : 'This level is complete.'
+  }
+
   bump.value = true
   setTimeout(() => (bump.value = false), 300)
 }
+
+onMounted(() => {
+  startLevel(0)
+})
 </script>
 
 <template>
@@ -230,6 +328,19 @@ function advanceDay() {
 
     <main class="flex flex-1 items-center justify-center bg-[#FBEEE0] px-10 py-8">
       <div class="w-full max-w-md rounded-[28px] border border-[#c9c0f5] bg-[#EAE6FB] p-9 text-center shadow-sm">
+        <p class="text-sm font-semibold tracking-[0.2em] text-emerald-600 uppercase">
+          Plant Care · Level {{ levelIndex + 1 }} of {{ levels.length }}
+        </p>
+        <p class="mt-2 font-['Georgia'] text-xl font-bold text-[#1E1B4B]">{{ level.title }}</p>
+        <div class="mt-4 mb-6 flex justify-center gap-2">
+          <span
+            v-for="(_, i) in levels"
+            :key="i"
+            class="h-2 w-8 rounded-full transition"
+            :class="i < levelIndex ? 'bg-emerald-500' : i === levelIndex ? 'bg-[#1E1B4B]' : 'bg-[#c9c0f5]'"
+          />
+        </div>
+
         <p class="font-['Georgia'] text-2xl font-bold text-[#1E1B4B]">Day {{ day }}</p>
         <p class="mt-1 mb-7 text-sm text-slate-500">
           <span v-if="streak > 0" class="font-semibold text-[#1E1B4B]">{{ streak }} day{{ streak === 1 ? '' : 's' }}</span>
@@ -265,6 +376,9 @@ function advanceDay() {
               max="100"
               class="mt-2 h-1.5 w-full cursor-pointer accent-emerald-500"
             />
+            <p v-if="level.showTargets" class="mt-1 text-xs text-slate-400">
+              Aim for {{ level.water[0] }}–{{ level.water[1] }}%
+            </p>
           </div>
 
           <div class="mb-5">
@@ -279,14 +393,26 @@ function advanceDay() {
               max="100"
               class="mt-2 h-1.5 w-full cursor-pointer accent-emerald-500"
             />
+            <p v-if="level.showTargets" class="mt-1 text-xs text-slate-400">
+              Aim for {{ level.light[0] }}–{{ level.light[1] }}%
+            </p>
           </div>
 
           <button
+            v-if="!levelComplete"
             type="button"
             class="w-full rounded-full bg-[#1E1B4B] py-3 text-sm font-semibold text-white transition hover:bg-[#2a2566]"
             @click="advanceDay"
           >
             Advance the day
+          </button>
+          <button
+            v-else
+            type="button"
+            class="w-full rounded-full bg-[#1E1B4B] py-3 text-sm font-semibold text-white transition hover:bg-[#2a2566]"
+            @click="startLevel(isLastLevel ? 0 : levelIndex + 1)"
+          >
+            {{ isLastLevel ? 'Play again' : 'Next level' }}
           </button>
 
           <button
