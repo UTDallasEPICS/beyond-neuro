@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Counting Money game (Digital & VR Training): count the bills and coins, then pick the total.
-  type Level = 'easy' | 'medium' | 'hard'
+  type Level = 'level1' | 'level2' | 'level3'
   type BillValue = 1 | 5 | 10 | 20 | 50 | 100
   type CoinValue = 1 | 5 | 10 | 25
 
@@ -30,33 +30,47 @@
     Level,
     { label: string; ids: string[]; minPieces: number; maxPieces: number; steps: number[] }
   > = {
-    easy: {
-      label: 'Easy — bills',
+    level1: {
+      label: 'Level 1 — bills',
       ids: ['b10', 'b5', 'b1'],
       minPieces: 2,
       maxPieces: 4,
       steps: [100, 500],
     },
-    medium: {
-      label: 'Medium — bills & coins',
+    level2: {
+      label: 'Level 2 — bills & coins',
       ids: ['b20', 'b10', 'b5', 'b1', 'c25', 'c10'],
       minPieces: 3,
       maxPieces: 6,
       steps: [10, 25, 100],
     },
-    hard: {
-      label: 'Hard — all money',
+    level3: {
+      label: 'Level 3 — all money',
+      ids: DENOMINATIONS.map((d) => d.id),
+      minPieces: 4,
+      maxPieces: 8,
+      steps: [1, 5, 25, 100],
+    },
+    level4: {
+      label: 'Level 3 — all money',
+      ids: DENOMINATIONS.map((d) => d.id),
+      minPieces: 4,
+      maxPieces: 8,
+      steps: [1, 5, 25, 100],
+    },
+    level5: {
+      label: 'Level 3 — all money',
       ids: DENOMINATIONS.map((d) => d.id),
       minPieces: 4,
       maxPieces: 8,
       steps: [1, 5, 25, 100],
     },
   }
-  const LEVEL_ORDER: Level[] = ['easy', 'medium', 'hard']
+  const LEVEL_ORDER: Level[] = ['level1', 'level2', 'level3']
 
   const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
 
-  const level = ref<Level>('easy')
+  const level = ref<Level>('level1')
   const pieces = ref<Denomination[]>([])
   const choices = ref<number[]>([])
   const tried = ref<number[]>([])
