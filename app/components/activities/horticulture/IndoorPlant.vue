@@ -1,12 +1,4 @@
 <script setup lang="ts">
-const navItems = [
-  { label: 'Home', icon: 'i-lucide-home' },
-  { label: 'Exercises', icon: 'i-lucide-footprints', active: true },
-  { label: 'My Progress', icon: 'i-lucide-line-chart' },
-  { label: 'Learn', icon: 'i-lucide-book-open' },
-  { label: 'Caregiver Corner', icon: 'i-lucide-map-pin' },
-]
-
 type Range = [number, number]
 
 type PlantLevel = {
@@ -305,153 +297,123 @@ function advanceDay() {
 onMounted(() => {
   startLevel(0)
 })
+
+const btnBase =
+  'inline-flex min-h-[56px] w-full items-center justify-center rounded-2xl px-6 py-3 text-lg font-semibold focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none'
+const btnPrimary = `${btnBase} bg-orange-700 text-white hover:bg-orange-800`
+const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-navy)] hover:bg-slate-50`
 </script>
 
 <template>
-  <div class="app-shell flex min-h-screen">
-    <aside class="flex w-64 shrink-0 flex-col bg-[#1E1B4B] p-5 text-white">
-      <div class="flex items-center gap-2 px-2 py-3">
-        <img
-          src="../assets/images/BeyondNeuro_Color_White.png"
-          alt="Beyond Neuro Logo"
-          class="h-6 w-auto"
+  <div class="space-y-6 text-[var(--bn-navy)]">
+    <section
+      aria-labelledby="plant-care-title"
+      class="rounded-[20px] border border-[var(--bn-border)] bg-[var(--bn-peach)] p-6 text-center sm:p-10"
+    >
+      <p class="text-lg font-bold tracking-wide text-orange-800 uppercase">
+        Plant care · Level {{ levelIndex + 1 }} of {{ levels.length }}
+      </p>
+      <h2 id="plant-care-title" class="bn-font-display mt-2 text-3xl font-bold">{{ level.title }}</h2>
+      <div class="mt-4 flex justify-center gap-2" aria-hidden="true">
+        <span
+          v-for="(_, i) in levels"
+          :key="i"
+          class="h-2 w-10 rounded-full"
+          :class="i < levelIndex ? 'bg-orange-700' : i === levelIndex ? 'bg-[var(--bn-navy)]' : 'bg-white'"
         />
       </div>
+      <p class="bn-font-display mt-6 text-2xl font-bold">Day {{ day }}</p>
+      <p class="mt-1 text-lg text-[var(--bn-muted)]">
+        <span v-if="streak > 0" class="font-semibold text-[var(--bn-navy)]">{{ streak }} day{{ streak === 1 ? '' : 's' }}</span>
+        <span v-if="streak > 0"> of steady care.</span>
+        <span v-else>Today starts a fresh streak.</span>
+      </p>
+      <div class="mt-6 flex h-[220px] items-end justify-center">
+        <svg
+          width="160"
+          height="200"
+          viewBox="0 0 160 200"
+          class="overflow-visible transition-transform duration-300"
+          :class="bump ? 'scale-[1.04]' : 'scale-100'"
+          v-html="plantSvg"
+        />
+      </div>
+      <p class="mt-5 min-h-[3rem] text-xl leading-relaxed text-[var(--bn-navy)]" aria-live="polite">
+        {{ message }}
+      </p>
+    </section>
 
-      <nav class="mt-6 flex flex-col gap-1">
+    <section aria-label="Water and light" class="rounded-[20px] border border-[var(--bn-border)] bg-white p-6">
+      <div>
+        <div class="flex items-center justify-between text-lg">
+          <label for="plant-water" class="font-semibold">Water</label>
+          <span class="font-bold tabular-nums">{{ water }}%</span>
+        </div>
+        <input
+          id="plant-water"
+          v-model.number="water"
+          type="range"
+          min="0"
+          max="100"
+          class="mt-4 h-3 w-full cursor-pointer accent-orange-700"
+          :aria-valuetext="`${water} percent water`"
+        />
+        <p v-if="level.showTargets" class="mt-2 text-lg text-[var(--bn-muted)]">
+          Aim for {{ level.water[0] }}–{{ level.water[1] }}%
+        </p>
+      </div>
+
+      <div class="mt-6">
+        <div class="flex items-center justify-between text-lg">
+          <label for="plant-light" class="font-semibold">Light</label>
+          <span class="font-bold tabular-nums">{{ light }}%</span>
+        </div>
+        <input
+          id="plant-light"
+          v-model.number="light"
+          type="range"
+          min="0"
+          max="100"
+          class="mt-4 h-3 w-full cursor-pointer accent-orange-700"
+          :aria-valuetext="`${light} percent light`"
+        />
+        <p v-if="level.showTargets" class="mt-2 text-lg text-[var(--bn-muted)]">
+          Aim for {{ level.light[0] }}–{{ level.light[1] }}%
+        </p>
+      </div>
+
+      <div class="mt-6 flex flex-col gap-3">
         <button
-          v-for="item in navItems"
-          :key="item.label"
+          v-if="!levelComplete"
           type="button"
-          class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition"
-          :class="
-            item.active
-              ? 'bg-white text-[#1E1B4B]'
-              : 'text-slate-300 hover:bg-white/10 hover:text-white'
-          "
+          :class="btnPrimary"
+          @click="advanceDay"
         >
-          <UIcon :name="item.icon" class="h-4 w-4" />
-          {{ item.label }}
+          Advance the day
         </button>
-      </nav>
-
-      <div class="mt-auto rounded-2xl bg-white/10 p-4">
-        <p class="text-sm font-bold text-emerald-300">Take your time</p>
-        <p class="mt-1 text-xs leading-5 text-slate-300">
-          Pause whenever you need. Your progress is saved.
-        </p>
+        <button
+          v-else
+          type="button"
+          :class="btnPrimary"
+          @click="startLevel(isLastLevel ? 0 : levelIndex + 1)"
+        >
+          {{ isLastLevel ? 'Play again' : 'Next level' }}
+        </button>
+        <button type="button" :class="btnQuiet" @click="resetRitual">Reset</button>
       </div>
-    </aside>
 
-    <main class="flex flex-1 items-center justify-center bg-[#FBEEE0] px-10 py-8">
-      <div class="w-full max-w-md rounded-[28px] border border-[#c9c0f5] bg-[#EAE6FB] p-9 text-center shadow-sm">
-        <p class="text-sm font-semibold tracking-[0.2em] text-emerald-600 uppercase">
-          Plant Care · Level {{ levelIndex + 1 }} of {{ levels.length }}
-        </p>
-        <p class="mt-2 font-['Georgia'] text-xl font-bold text-[#1E1B4B]">{{ level.title }}</p>
-        <div class="mt-4 mb-6 flex justify-center gap-2">
-          <span
-            v-for="(_, i) in levels"
-            :key="i"
-            class="h-2 w-8 rounded-full transition"
-            :class="i < levelIndex ? 'bg-emerald-500' : i === levelIndex ? 'bg-[#1E1B4B]' : 'bg-[#c9c0f5]'"
+      <div class="mt-6">
+        <div class="h-2 overflow-hidden rounded-full bg-[var(--bn-peach)]">
+          <div
+            class="h-full rounded-full bg-orange-700 transition-all duration-500"
+            :style="{ width: Math.max(0, Math.min(100, health)) + '%' }"
           />
         </div>
-
-        <p class="font-['Georgia'] text-2xl font-bold text-[#1E1B4B]">Day {{ day }}</p>
-        <p class="mt-1 mb-7 text-sm text-slate-500">
-          <span v-if="streak > 0" class="font-semibold text-[#1E1B4B]">{{ streak }} day{{ streak === 1 ? '' : 's' }}</span>
-          <span v-if="streak > 0"> of steady care.</span>
-          <span v-else>Today starts a fresh streak.</span>
-        </p>
-
-        <div class="flex h-[220px] items-end justify-center">
-          <svg
-            width="160"
-            height="200"
-            viewBox="0 0 160 200"
-            class="overflow-visible transition-transform duration-300"
-            :class="bump ? 'scale-[1.04]' : 'scale-100'"
-            v-html="plantSvg"
-          />
-        </div>
-
-        <p class="mt-5 mb-7 min-h-[1.4em] font-['Georgia'] text-base text-slate-500 italic">
-          {{ message }}
-        </p>
-
-        <div class="rounded-2xl bg-white p-6 text-left">
-          <div class="mb-5">
-            <div class="flex justify-between text-sm text-slate-500">
-              <span>Water</span>
-              <span class="font-semibold tabular-nums text-[#1E1B4B]">{{ water }}%</span>
-            </div>
-            <input
-              v-model.number="water"
-              type="range"
-              min="0"
-              max="100"
-              class="mt-2 h-1.5 w-full cursor-pointer accent-emerald-500"
-            />
-            <p v-if="level.showTargets" class="mt-1 text-xs text-slate-400">
-              Aim for {{ level.water[0] }}–{{ level.water[1] }}%
-            </p>
-          </div>
-
-          <div class="mb-5">
-            <div class="flex justify-between text-sm text-slate-500">
-              <span>Light</span>
-              <span class="font-semibold tabular-nums text-[#1E1B4B]">{{ light }}%</span>
-            </div>
-            <input
-              v-model.number="light"
-              type="range"
-              min="0"
-              max="100"
-              class="mt-2 h-1.5 w-full cursor-pointer accent-emerald-500"
-            />
-            <p v-if="level.showTargets" class="mt-1 text-xs text-slate-400">
-              Aim for {{ level.light[0] }}–{{ level.light[1] }}%
-            </p>
-          </div>
-
-          <button
-            v-if="!levelComplete"
-            type="button"
-            class="w-full rounded-full bg-[#1E1B4B] py-3 text-sm font-semibold text-white transition hover:bg-[#2a2566]"
-            @click="advanceDay"
-          >
-            Advance the day
-          </button>
-          <button
-            v-else
-            type="button"
-            class="w-full rounded-full bg-[#1E1B4B] py-3 text-sm font-semibold text-white transition hover:bg-[#2a2566]"
-            @click="startLevel(isLastLevel ? 0 : levelIndex + 1)"
-          >
-            {{ isLastLevel ? 'Play again' : 'Next level' }}
-          </button>
-
-          <button
-            type="button"
-            class="mt-2 w-full rounded-full border border-slate-200 py-2.5 text-sm font-semibold text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
-            @click="resetRitual"
-          >
-            Reset
-          </button>
-
-          <div class="mt-5 h-[5px] overflow-hidden rounded-full bg-[#DCD4F5]">
-            <div
-              class="h-full rounded-full bg-emerald-400 transition-all duration-500"
-              :style="{ width: Math.max(0, Math.min(100, health)) + '%' }"
-            />
-          </div>
-          <div class="mt-1 flex justify-between text-xs text-slate-400">
-            <span>Health</span>
-            <span>{{ Math.round(health) }}%</span>
-          </div>
+        <div class="mt-2 flex justify-between text-lg text-[var(--bn-muted)]">
+          <span>Health</span>
+          <span>{{ Math.round(health) }}%</span>
         </div>
       </div>
-    </main>
+    </section>
   </div>
 </template>

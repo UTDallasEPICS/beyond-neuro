@@ -1,12 +1,4 @@
 <script setup lang="ts">
-const navItems = [
-  { label: 'Home', icon: 'i-lucide-home' },
-  { label: 'Exercises', icon: 'i-lucide-footprints', active: true },
-  { label: 'My Progress', icon: 'i-lucide-line-chart' },
-  { label: 'Learn', icon: 'i-lucide-book-open' },
-  { label: 'Caregiver Corner', icon: 'i-lucide-map-pin' },
-]
-
 type FlowerType = 'rose' | 'tulip' | 'daisy' | 'sunflower' | 'lily' | 'lavender'
 type Pot = { type: FlowerType; planted: boolean }
 
@@ -173,144 +165,105 @@ function potMarkup(pot: Pot) {
 onMounted(() => {
   startLevel(0)
 })
+
+const btnBase =
+  'inline-flex min-h-[56px] items-center justify-center rounded-2xl px-6 py-3 text-lg font-semibold focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none'
+const btnPrimary = `${btnBase} bg-orange-700 text-white hover:bg-orange-800`
+const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-navy)] hover:bg-slate-50`
 </script>
 
 <template>
-  <div class="app-shell flex min-h-screen">
-    <aside class="flex w-64 shrink-0 flex-col bg-[#1E1B4B] p-5 text-white">
-      <div class="flex items-center gap-2 px-2 py-3">
-        <img
-          src="../assets/images/BeyondNeuro_Color_White.png"
-          alt="Beyond Neuro Logo"
-          class="h-6 w-auto"
-        />
+  <section
+    aria-labelledby="garden-title"
+    class="rounded-[20px] border border-[var(--bn-border)] bg-[var(--bn-peach)] p-6 sm:p-10"
+  >
+    <p class="text-lg font-bold tracking-wide text-orange-800 uppercase">
+      Garden matching · Level {{ levelIndex + 1 }} of {{ levels.length }}
+    </p>
+    <h2 id="garden-title" class="bn-font-display mt-2 text-3xl font-bold text-[var(--bn-navy)]">
+      Match each flower to its pot
+    </h2>
+    <p class="mt-2 max-w-xl text-lg leading-relaxed text-[var(--bn-muted)]">
+      Drag a flower onto its pot, or tap a flower and then tap the pot.
+    </p>
+    <div class="mt-4 flex gap-2" aria-hidden="true">
+      <span
+        v-for="(_, i) in levels"
+        :key="i"
+        class="h-2 w-10 rounded-full"
+        :class="i < levelIndex ? 'bg-orange-700' : i === levelIndex ? 'bg-[var(--bn-navy)]' : 'bg-white'"
+      />
+    </div>
+
+    <div class="mx-auto mt-8 grid max-w-2xl gap-5" :style="gridStyle">
+      <div
+        v-for="pot in pots"
+        :key="pot.type"
+        class="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed bg-white/70 p-4 transition"
+        :class="[
+          pot.planted ? 'border-orange-700 bg-white' : 'border-[var(--bn-border)]',
+          selected && !pot.planted ? 'cursor-pointer hover:border-[var(--bn-navy)]' : '',
+          shakePot === pot.type ? 'animate-shake' : '',
+        ]"
+        @dragover.prevent
+        @drop="plant(pot)"
+        @click="plant(pot)"
+      >
+        <svg width="72" height="98" viewBox="0 0 60 82" v-html="potMarkup(pot)" />
+        <span class="h-6 text-lg font-semibold text-[var(--bn-navy)]">
+          {{ level.showLabel || pot.planted ? flowerLabels[pot.type] : '' }}
+        </span>
       </div>
+    </div>
 
-      <nav class="mt-6 flex flex-col gap-1">
-        <button
-          v-for="item in navItems"
-          :key="item.label"
-          type="button"
-          class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition"
-          :class="
-            item.active
-              ? 'bg-white text-[#1E1B4B]'
-              : 'text-slate-300 hover:bg-white/10 hover:text-white'
-          "
-        >
-          <UIcon :name="item.icon" class="h-4 w-4" />
-          {{ item.label }}
-        </button>
-      </nav>
+    <div v-if="!levelComplete" class="mt-8 flex flex-wrap justify-center gap-4">
+      <button
+        v-for="type in tray"
+        :key="type"
+        type="button"
+        class="flex min-h-[56px] flex-col items-center gap-1 rounded-2xl border-2 bg-white px-6 py-4 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        :class="[
+          isPlanted(type) ? 'pointer-events-none opacity-30' : 'cursor-grab active:cursor-grabbing',
+          selected === type ? 'border-[var(--bn-navy)]' : 'border-[var(--bn-border)]',
+        ]"
+        :draggable="!isPlanted(type)"
+        :aria-pressed="selected === type"
+        @dragstart="selected = type"
+        @click="selectFlower(type)"
+      >
+        <svg width="44" height="44" viewBox="0 0 60 60" v-html="flowerSvg[type]" />
+        <span class="text-lg text-[var(--bn-navy)]">{{ flowerLabels[type] }}</span>
+      </button>
+    </div>
 
-      <div class="mt-auto rounded-2xl bg-white/10 p-4">
-        <p class="text-sm font-bold text-emerald-300">Take your time</p>
-        <p class="mt-1 text-xs leading-5 text-slate-300">
-          Pause whenever you need. Your progress is saved.
-        </p>
-      </div>
-    </aside>
+    <div v-else class="mt-8 text-center">
+      <p class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">
+        {{ isLastLevel ? 'All levels complete' : `Level ${levelIndex + 1} complete` }}
+      </p>
+      <p class="mt-2 text-2xl tracking-widest text-orange-700" :aria-label="`${stars} of 3 stars`">
+        {{ '★'.repeat(stars) }}<span class="text-[var(--bn-border)]">{{ '★'.repeat(3 - stars) }}</span>
+      </p>
+      <p class="mt-1 text-lg text-[var(--bn-muted)]">
+        {{ mistakes === 0 ? 'No mistakes.' : `${mistakes} mistake${mistakes === 1 ? '' : 's'}.` }}
+      </p>
+      <button
+        type="button"
+        class="mt-5"
+        :class="btnPrimary"
+        @click="startLevel(isLastLevel ? 0 : levelIndex + 1)"
+      >
+        {{ isLastLevel ? 'Play again' : 'Next level' }}
+      </button>
+    </div>
 
-    <main class="flex-1 bg-[#FBEEE0] px-10 py-8">
-      <header class="mb-6">
-        <p class="text-sm font-semibold tracking-[0.2em] text-emerald-600 uppercase">
-          Garden Activity · Level {{ levelIndex + 1 }} of {{ levels.length }}
-        </p>
-        <h1 class="mt-2 font-['Georgia'] text-4xl font-black tracking-tight text-[#1E1B4B]">
-          Match each flower to its pot
-        </h1>
-        <p class="mt-2 max-w-xl text-slate-600">
-          Drag a flower onto its pot, or tap a flower and then tap the pot.
-        </p>
-
-        <div class="mt-4 flex gap-2">
-          <span
-            v-for="(_, i) in levels"
-            :key="i"
-            class="h-2 w-10 rounded-full transition"
-            :class="i < levelIndex ? 'bg-emerald-500' : i === levelIndex ? 'bg-[#1E1B4B]' : 'bg-[#c9c0f5]'"
-          />
-        </div>
-      </header>
-
-      <section class="rounded-3xl bg-[#EAE6FB] p-10 shadow-sm">
-        <div class="mx-auto grid max-w-2xl gap-5" :style="gridStyle">
-          <div
-            v-for="pot in pots"
-            :key="pot.type"
-            class="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-4 transition"
-            :class="[
-              pot.planted ? 'border-emerald-400 bg-white' : 'border-[#c9c0f5] bg-white/50',
-              selected && !pot.planted ? 'cursor-pointer hover:border-[#1E1B4B]' : '',
-              shakePot === pot.type ? 'animate-shake' : '',
-            ]"
-            @dragover.prevent
-            @drop="plant(pot)"
-            @click="plant(pot)"
-          >
-            <svg width="72" height="98" viewBox="0 0 60 82" v-html="potMarkup(pot)" />
-            <span class="h-4 text-xs font-semibold text-[#1E1B4B]">
-              {{ level.showLabel || pot.planted ? flowerLabels[pot.type] : '' }}
-            </span>
-          </div>
-        </div>
-
-        <div v-if="!levelComplete" class="mt-10 flex flex-wrap justify-center gap-4">
-          <div
-            v-for="type in tray"
-            :key="type"
-            class="flex flex-col items-center gap-1 rounded-2xl border bg-white px-6 py-4 transition"
-            :class="[
-              isPlanted(type)
-                ? 'pointer-events-none opacity-30'
-                : 'cursor-grab hover:shadow-md active:cursor-grabbing',
-              selected === type ? 'border-[#1E1B4B] ring-2 ring-[#1E1B4B]/30' : 'border-[#c9c0f5]',
-            ]"
-            :draggable="!isPlanted(type)"
-            @dragstart="selected = type"
-            @click="selectFlower(type)"
-          >
-            <svg width="44" height="44" viewBox="0 0 60 60" v-html="flowerSvg[type]" />
-            <span class="text-xs font-medium text-slate-500">{{ flowerLabels[type] }}</span>
-          </div>
-        </div>
-
-        <div v-else class="mt-10 text-center">
-          <p class="font-['Georgia'] text-2xl font-bold text-[#1E1B4B]">
-            {{ isLastLevel ? 'All levels complete' : `Level ${levelIndex + 1} complete` }}
-          </p>
-          <p class="mt-2 text-2xl tracking-widest text-amber-500">
-            {{ '★'.repeat(stars) }}<span class="text-[#c9c0f5]">{{ '★'.repeat(3 - stars) }}</span>
-          </p>
-          <p class="mt-1 text-sm text-slate-500">
-            {{ mistakes === 0 ? 'No mistakes.' : `${mistakes} mistake${mistakes === 1 ? '' : 's'}.` }}
-          </p>
-          <button
-            type="button"
-            class="mt-5 rounded-full bg-[#1E1B4B] px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2a2566]"
-            @click="startLevel(isLastLevel ? 0 : levelIndex + 1)"
-          >
-            {{ isLastLevel ? 'Play again' : 'Next level' }}
-          </button>
-        </div>
-
-        <p class="mt-8 text-center text-sm text-slate-500">{{ message }}</p>
-
-        <div class="mt-6 flex items-center justify-center gap-4">
-          <span class="text-xs font-semibold tracking-wide text-slate-400 uppercase">
-            {{ plantedCount }} / {{ pots.length }} matched · {{ mistakes }} mistake{{ mistakes === 1 ? '' : 's' }}
-          </span>
-          <button
-            type="button"
-            class="rounded-full border border-[#1E1B4B] px-5 py-1.5 text-xs font-semibold text-[#1E1B4B] transition hover:bg-[#1E1B4B] hover:text-white"
-            @click="startLevel(levelIndex)"
-          >
-            Restart level
-          </button>
-        </div>
-      </section>
-    </main>
-  </div>
+    <p class="mt-8 text-center text-xl text-[var(--bn-navy)]" aria-live="polite">{{ message }}</p>
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-4">
+      <span class="text-lg font-semibold text-[var(--bn-muted)]">
+        {{ plantedCount }} / {{ pots.length }} matched · {{ mistakes }} mistake{{ mistakes === 1 ? '' : 's' }}
+      </span>
+      <button type="button" :class="btnQuiet" @click="startLevel(levelIndex)">Restart level</button>
+    </div>
+  </section>
 </template>
 
 <style scoped>
