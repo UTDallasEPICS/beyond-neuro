@@ -1,18 +1,18 @@
 <script setup lang="ts">
-  // Same 9 swatches as the BeyondNeuro / Figma coloring demo
+  // Same 9 swatches as the BeyondNeuro / Figma coloring demo,
   const colors = [
-    '#7c3aed', // purple
     '#3b82f6', // blue
-    '#14b8a6', // teal
     '#f97316', // orange
-    '#ec4899', // pink
+    '#7c3aed', // purple
     '#22c55e', // green
+    '#ec4899', // pink
+    '#14b8a6', // teal
     '#ef4444', // red
-    '#38bdf8', // sky
     '#1e3a5f', // navy
+    '#38bdf8', // sky
   ] as const
 
-  type MirrorLevelId = 1 | 2 | 3
+  type MirrorLevelId = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
   interface MirrorLevel {
     id: MirrorLevelId
@@ -22,10 +22,31 @@
     colors: readonly string[]
   }
 
+  function squareLabel(size: number): string {
+    if (size <= 5) return 'Big'
+    if (size <= 9) return 'Medium'
+    return 'Small'
+  }
+
+  // Builds one level from its grid size and how many colors it offers.
+  function makeLevel(id: MirrorLevelId, size: number, colorCount: number): MirrorLevel {
+    return {
+      id,
+      name: `Level ${id}`,
+      hint: `${squareLabel(size)} squares, ${colorCount} colors`,
+      size,
+      colors: colors.slice(0, colorCount),
+    }
+  }
+
   const levels: readonly MirrorLevel[] = [
-    { id: 1, name: 'Level 1', hint: 'Big squares', size: 5, colors: colors.slice(0, 5) },
-    { id: 2, name: 'Level 2', hint: 'Medium squares', size: 9, colors },
-    { id: 3, name: 'Level 3', hint: 'Small squares', size: 13, colors },
+    makeLevel(1, 5, 3),
+    makeLevel(2, 5, 5),
+    makeLevel(3, 9, 5),
+    makeLevel(4, 9, 6),
+    makeLevel(5, 9, 7),
+    makeLevel(6, 13, 7),
+    makeLevel(7, 13, 9),
   ]
 
   const EMPTY = ''
@@ -34,7 +55,7 @@
     return Array.from({ length: size }, () => Array.from({ length: size }, () => EMPTY))
   }
 
-  // Level 1
+  // Level 1 is default
   const activeLevelId = ref<MirrorLevelId>(1)
   const level = computed(() => levels.find((l) => l.id === activeLevelId.value)!)
 
@@ -68,7 +89,7 @@
   function chooseLevel(id: MirrorLevelId) {
     activeLevelId.value = id
     isPainting.value = false
-    // Level 1 has fewer colors, so keep the current color only if it exists here.
+    // Lower levels have fewer colors, so keep the current color only if it exists here.
     if (!level.value.colors.includes(selectedColor.value)) {
       selectedColor.value = level.value.colors[0]!
     }
@@ -94,7 +115,11 @@
   <div>
     <h2 class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">Choose a level</h2>
     <p class="mt-1 text-lg text-[var(--bn-muted)]">You can change this any time.</p>
-    <div class="mt-4 grid grid-cols-3 gap-4" role="group" aria-label="Difficulty level">
+    <div
+      class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
+      role="group"
+      aria-label="Difficulty level"
+    >
       <button
         v-for="option in levels"
         :key="option.id"
