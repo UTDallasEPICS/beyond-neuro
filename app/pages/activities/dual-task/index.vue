@@ -80,7 +80,7 @@
       tagClass: 'bg-[#ecfeff] text-cyan-800',
       title: 'Horticultural Therapy',
       description: 'Gentle hands-on movement through plant care and gardening.',
-      to: null,
+      to: '/activities/horticulture',
     },
   ]
 
