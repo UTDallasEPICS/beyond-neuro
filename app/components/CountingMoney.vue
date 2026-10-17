@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Counting Money game (Digital & VR Training): count the bills and coins, then pick the total.
-  type Level = 'easy' | 'medium' | 'hard'
+  type LevelId = 1 | 2 | 3 | 4 | 5 | 6 | 7
   type BillValue = 1 | 5 | 10 | 20 | 50 | 100
   type CoinValue = 1 | 5 | 10 | 25
 
@@ -10,6 +10,16 @@
     value: number
     cents: number
     name: string
+  }
+
+  interface LevelConfig {
+    id: LevelId
+    hint: string
+    ids: string[]
+    minPieces: number
+    maxPieces: number
+    // Gaps (in cents) used to make the two nearby wrong answers.
+    steps: number[]
   }
 
   // Largest first. All math is in whole cents to avoid rounding errors.
@@ -26,37 +36,63 @@
     { id: 'c1', kind: 'coin', value: 1, cents: 1, name: 'Penny (1¢)' },
   ]
 
-  const LEVELS: Record<
-    Level,
-    { label: string; ids: string[]; minPieces: number; maxPieces: number; steps: number[] }
-  > = {
-    easy: {
-      label: 'Easy — bills',
-      ids: ['b10', 'b5', 'b1'],
+  // Each level adds one new kind of money or a few more pieces to count.
+  const LEVELS: LevelConfig[] = [
+    { id: 1, hint: '$1 bills', ids: ['b1'], minPieces: 2, maxPieces: 4, steps: [100, 200] },
+    {
+      id: 2,
+      hint: '$1 and $5 bills',
+      ids: ['b5', 'b1'],
       minPieces: 2,
-      maxPieces: 4,
+      maxPieces: 5,
       steps: [100, 500],
     },
-    medium: {
-      label: 'Medium — bills & coins',
-      ids: ['b20', 'b10', 'b5', 'b1', 'c25', 'c10'],
+    {
+      id: 3,
+      hint: '$1, $5 and $10 bills',
+      ids: ['b10', 'b5', 'b1'],
       minPieces: 3,
       maxPieces: 6,
+      steps: [100, 500],
+    },
+    {
+      id: 4,
+      hint: 'Bills up to $20 and quarters',
+      ids: ['b20', 'b10', 'b5', 'b1', 'c25'],
+      minPieces: 3,
+      maxPieces: 6,
+      steps: [25, 100],
+    },
+    {
+      id: 5,
+      hint: 'Add dimes',
+      ids: ['b20', 'b10', 'b5', 'b1', 'c25', 'c10'],
+      minPieces: 4,
+      maxPieces: 7,
       steps: [10, 25, 100],
     },
-    hard: {
-      label: 'Hard — all money',
-      ids: DENOMINATIONS.map((d) => d.id),
+    {
+      id: 6,
+      hint: 'Add $50 bills, nickels and pennies',
+      ids: ['b50', 'b20', 'b10', 'b5', 'b1', 'c25', 'c10', 'c5', 'c1'],
       minPieces: 4,
       maxPieces: 8,
-      steps: [1, 5, 25, 100],
+      steps: [5, 10, 25],
     },
-  }
-  const LEVEL_ORDER: Level[] = ['easy', 'medium', 'hard']
+    {
+      id: 7,
+      hint: 'All money, up to $100',
+      ids: DENOMINATIONS.map((d) => d.id),
+      minPieces: 5,
+      maxPieces: 9,
+      steps: [1, 5, 10, 25],
+    },
+  ]
 
   const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
 
-  const level = ref<Level>('easy')
+  const levelId = ref<LevelId>(1)
+  const level = computed(() => LEVELS.find((l) => l.id === levelId.value)!)
   const pieces = ref<Denomination[]>([])
   const choices = ref<number[]>([])
   const tried = ref<number[]>([])
@@ -101,7 +137,7 @@
   }
 
   function newRound() {
-    const config = LEVELS[level.value]
+    const config = level.value
     const options = DENOMINATIONS.filter((d) => config.ids.includes(d.id))
     const count = randomInt(config.minPieces, config.maxPieces)
 
@@ -122,8 +158,8 @@
     showBreakdown.value = false
   }
 
-  function pickLevel(next: Level) {
-    level.value = next
+  function pickLevel(next: LevelId) {
+    levelId.value = next
     newRound()
   }
 
@@ -165,23 +201,29 @@
         </div>
 
         <!-- Level (free pick, any time) -->
-        <div class="mt-5 flex flex-wrap gap-2" role="group" aria-label="Level">
+        <p class="mt-5 text-lg font-semibold text-[#231E5A]">Choose a level</p>
+        <p class="text-base text-gray-600">You can change this any time.</p>
+        <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label="Level">
           <button
-            v-for="key in LEVEL_ORDER"
-            :key="key"
+            v-for="option in LEVELS"
+            :key="option.id"
             type="button"
-            :aria-pressed="level === key"
-            class="min-h-12 rounded-full border px-5 text-lg focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#231E5A]"
+            :aria-pressed="levelId === option.id"
+            :aria-label="`Level ${option.id}: ${option.hint}`"
+            class="min-h-12 min-w-12 rounded-full border px-5 text-lg font-semibold focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#231E5A]"
             :class="
-              level === key
+              levelId === option.id
                 ? 'border-[#231E5A] bg-[#231E5A] text-white'
                 : 'border-[#DCD9F0] bg-white text-[#231E5A]'
             "
-            @click="pickLevel(key)"
+            @click="pickLevel(option.id)"
           >
-            {{ LEVELS[key].label }}
+            {{ option.id }}
           </button>
         </div>
+        <p class="mt-3 text-lg text-gray-700">
+          <span class="font-semibold text-[#231E5A]">Level {{ level.id }}:</span> {{ level.hint }}
+        </p>
 
         <!-- The money -->
         <div

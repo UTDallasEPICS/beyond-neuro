@@ -22,10 +22,15 @@
     { label: 'Puzzles & Games', href: '/activities/puzzles', match: '/activities/puzzles' },
     { label: 'Music Therapy & Rhythm', href: '/activities/music', match: '/activities/music' },
     {
-  label: 'Digital & VR Training',
-  href: '/activities/digital-vr',
-  match: '/activities/digital-vr',
-},
+      label: 'Dual-Task Exercise',
+      href: '/activities/dual-task',
+      match: '/activities/dual-task',
+    },
+    {
+      label: 'Horticultural Therapy',
+      href: '/activities/horticulture',
+      match: '/activities/horticulture',
+    },
   ]
 
   const comingSoon = [
