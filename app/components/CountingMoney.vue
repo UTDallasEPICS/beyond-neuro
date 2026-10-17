@@ -180,7 +180,7 @@
 </script>
 
 <template>
-  <section class="bg-[#F5F1EA] px-4 py-12">
+  <section class="px-4 py-12">
     <div class="mx-auto max-w-4xl">
       <h2 class="font-serif text-4xl font-bold text-[#231E5A]">Counting Money</h2>
       <p class="mt-3 text-lg text-gray-600">
