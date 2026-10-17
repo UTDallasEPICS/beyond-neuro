@@ -1,11 +1,11 @@
 <script setup lang="ts">
   useSeoMeta({
-    title: 'Writing Practice — BeyondNeuro',
+    title: 'Calligraphy Practice — BeyondNeuro',
     description:
-      'Practice typing words at your own pace with simple, medium, and more complex words.',
+      'Practice tracing letters and words with a finger or mouse at your own pace.',
   })
 </script>
 
 <template>
-  <ActivitiesCalligraphyWritingPrompt />
+    <ActivitiesCalligraphyCanvas />
 </template>

@@ -31,7 +31,16 @@
       href: '/activities/writing',
       match: '/activities/writing',
     },
-
+    {
+      label: 'Dual-Task Exercise',
+      href: '/activities/dual-task',
+      match: '/activities/dual-task',
+    },
+    {
+      label: 'Horticultural Therapy',
+      href: '/activities/horticulture',
+      match: '/activities/horticulture',
+    }
   ]
 
   const comingSoon = [
