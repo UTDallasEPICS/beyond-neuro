@@ -9,7 +9,6 @@
   const route = useRoute()
 
   const activities: NavLink[] = [
-<<<<<<< HEAD
     {
       label: 'Reminiscence Therapy',
       href: '/activities/reminiscence/life-story',
@@ -23,17 +22,16 @@
     { label: 'Puzzles & Games', href: '/activities/puzzles', match: '/activities/puzzles' },
     { label: 'Music Therapy & Rhythm', href: '/activities/music', match: '/activities/music' },
     {
-  label: 'Digital & VR Training',
-  href: '/activities/digital-vr',
-  match: '/activities/digital-vr',
-},
-=======
-    { label: 'Reminiscence Therapy', href: '/activities/reminiscence/life-story', match: '/activities/reminiscence' },
-    { label: 'Coloring & Visual Art', href: '/coloring', match: '/coloring' },
-    { label: 'Puzzles & Games', href: '/puzzles', match: '/puzzles' },
-    { label: 'Music Therapy & Rhythm', href: '/music', match: '/music' },
-    { label: 'Writing & Calligraphy',  href: '/writing',  match: '/writing' }
->>>>>>> origin/writing-and-calligraphy
+      label: 'Digital & VR Training',
+      href: '/activities/digital-vr',
+      match: '/activities/digital-vr',
+    },
+    {
+      label: 'Writing & Calligraphy',
+      href: '/activities/writing',
+      match: '/activities/writing',
+    },
+
   ]
 
   const comingSoon = [

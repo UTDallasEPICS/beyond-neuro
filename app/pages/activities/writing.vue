@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
   definePageMeta({
     layout: 'activity',
@@ -8,16 +9,16 @@
   })
 
   const tabs = [
-    { label: 'Writing practice', to: '/writing' },
-    { label: 'Calligraphy', to: '/writing/calligraphy' },
+    { label: 'Calligraphy', to: '/activities/writing' },
+    { label: 'Writing Practice', to: '/activities/writing/writing-prompt' },
   ]
 </script>
 
 <template>
   <ActivitiesActivityModulePage
-    tag="Language & Fine Motor"
+    tag="Fine Motor"
     title="Writing & Calligraphy"
-    subtitle="Practice words and handwriting at your own pace. There are no timers and no pressure."
+    subtitle="Pen, paper, and the steady work of cognition."
     tabs-label="Writing and calligraphy activities"
     :tabs="tabs"
   >

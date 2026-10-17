@@ -1,6 +1,7 @@
+
 <script setup lang="ts">
   // Counting Money game (Digital & VR Training): count the bills and coins, then pick the total.
-  type Level = 'level1' | 'level2' | 'level3'
+  type Level = 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'level6' | 'level7'
   type BillValue = 1 | 5 | 10 | 20 | 50 | 100
   type CoinValue = 1 | 5 | 10 | 25
 
@@ -32,41 +33,58 @@
   > = {
     level1: {
       label: 'Level 1 — bills',
-      ids: ['b10', 'b5', 'b1'],
+      ids: ['b1', 'b5'],
       minPieces: 2,
-      maxPieces: 4,
+      maxPieces: 3,
       steps: [100, 500],
     },
     level2: {
-      label: 'Level 2 — bills & coins',
-      ids: ['b20', 'b10', 'b5', 'b1', 'c25', 'c10'],
+      label: 'Level 2 — more bills',
+      ids: ['b10', 'b5', 'b1'],
+      minPieces: 2,
+      maxPieces: 5,
+      steps: [100, 500, 1000],
+    },
+    level3: {
+      label: 'Level 3 — basic coins',
+      ids: ['c25', 'c10', 'c5'],
+      minPieces: 3,
+      maxPieces: 6,
+      steps: [5, 10, 25],
+    },
+    level4: {
+      label: 'Level 4 — bills & coins',
+      ids: ['b10', 'b5', 'b1', 'c25', 'c10'],
       minPieces: 3,
       maxPieces: 6,
       steps: [10, 25, 100],
     },
-    level3: {
-      label: 'Level 3 — all money',
-      ids: DENOMINATIONS.map((d) => d.id),
-      minPieces: 4,
-      maxPieces: 8,
-      steps: [1, 5, 25, 100],
-    },
-    level4: {
-      label: 'Level 3 — all money',
-      ids: DENOMINATIONS.map((d) => d.id),
-      minPieces: 4,
-      maxPieces: 8,
-      steps: [1, 5, 25, 100],
-    },
     level5: {
-      label: 'Level 3 — all money',
-      ids: DENOMINATIONS.map((d) => d.id),
+      label: 'Level 5 — mixed money',
+      ids: ['b20', 'b10', 'b5', 'b1', 'c25', 'c10', 'c5', 'c1'],
       minPieces: 4,
-      maxPieces: 8,
-      steps: [1, 5, 25, 100],
+      maxPieces: 7,
+      steps: [1, 5, 10, 25, 100],
+    },
+    level6: {
+      label: 'Level 6 — large amounts',
+      ids: ['b50', 'b20', 'b10', 'b5', 'b1', 'c25', 'c10', 'c5', 'c1'],
+      minPieces: 5,
+      maxPieces: 9,
+      steps: [1, 5, 25, 100, 500],
+    },
+    level7: {
+      label: 'Level 7 — all money',
+      ids: DENOMINATIONS.map((d) => d.id),
+      minPieces: 6,
+      maxPieces: 12,
+      steps: [1, 5, 10, 25, 100, 500, 1000],
     },
   }
-  const LEVEL_ORDER: Level[] = ['level1', 'level2', 'level3']
+
+  const LEVEL_ORDER: Level[] = [
+    'level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7'
+  ]
 
   const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
 
