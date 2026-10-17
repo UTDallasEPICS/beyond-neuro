@@ -1,9 +1,10 @@
 <script setup lang="ts">
+  import { photoLevels, photoMemoryPrompts } from '~/data/reminiscence/photo-memory-prompts'
   import {
-    photoLevels,
-    photoMemoryPrompts,
-    type PhotoLevel,
-  } from '~/data/reminiscence/photo-memory-prompts'
+    REMINISCENCE_LEVELS,
+    nextLevel,
+    type ReminiscenceLevel,
+  } from '~/data/reminiscence/levels'
 
   interface SavedMemory {
     question: string
@@ -16,7 +17,8 @@
 
   type Step = 'ask' | 'followup' | 'done'
   const step = ref<Step>('ask')
-  const index = ref(0) // which photo we are on
+  const level = ref<ReminiscenceLevel>(1)
+  const index = ref(0) // which photo we are on within the level
   const questionIndex = ref(0) // which follow-up question is showing
   const response = ref('')
   const saved = ref<Record<string, SavedMemory>>({})
@@ -25,14 +27,15 @@
   const heading = ref<HTMLElement | null>(null)
   const brokenImages = ref<Record<string, boolean>>({}) // photos whose file failed to load
 
-  const total = photoMemoryPrompts.length
-  const photo = computed(() => photoMemoryPrompts[index.value])
+  const levelPhotos = computed(() => photoMemoryPrompts.filter((p) => p.level === level.value))
+  const total = computed(() => levelPhotos.value.length)
+  const photo = computed(() => levelPhotos.value[index.value])
   const followUp = computed(() => photo.value?.followUps[questionIndex.value] ?? '')
-  const level = computed(() => (photo.value ? photoLevels[photo.value.level] : null))
+  const levelInfo = computed(() => photoLevels[level.value])
+  const upcomingLevel = computed(() => nextLevel(level.value))
   const showImage = computed(() => !!photo.value?.image && !brokenImages.value[photo.value.id])
 
-  const levelOrder = Object.keys(photoLevels) as PhotoLevel[]
-  const levelStart = (l: PhotoLevel) => photoMemoryPrompts.findIndex((p) => p.level === l)
+  const pickerLevels = REMINISCENCE_LEVELS.map((l) => ({ level: l, ...photoLevels[l] }))
 
   const savedMemories = computed(() =>
     photoMemoryPrompts
@@ -76,8 +79,14 @@
     step.value = 'ask'
   }
 
+  function startLevel(l: ReminiscenceLevel) {
+    feedback.value = ''
+    level.value = l
+    goTo(0)
+  }
+
   function goToNext() {
-    if (index.value < total - 1) goTo(index.value + 1)
+    if (index.value < total.value - 1) goTo(index.value + 1)
     else step.value = 'done'
   }
 
@@ -105,11 +114,6 @@
     if (index.value > 0) goTo(index.value - 1)
   }
 
-  function jumpToLevel(l: PhotoLevel) {
-    feedback.value = ''
-    goTo(levelStart(l))
-  }
-
   function saveAndNext() {
     if (!photo.value) return
     const text = response.value.trim()
@@ -134,8 +138,7 @@
   function startOver() {
     saved.value = {}
     persist()
-    feedback.value = ''
-    goTo(0)
+    startLevel(1)
   }
 
   function printMemories() {
@@ -150,26 +153,11 @@
 
 <template>
   <section class="mt-8 text-2xl text-[var(--bn-navy)]">
-    <nav aria-label="Photo groups" class="print:hidden">
-      <ul class="grid list-none gap-3 p-0 sm:grid-cols-3">
-        <li v-for="l in levelOrder" :key="l">
-          <button
-            type="button"
-            :aria-pressed="step !== 'done' && photo?.level === l"
-            class="flex min-h-[72px] w-full flex-col items-start justify-center rounded-2xl border-2 px-5 py-3 text-left focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
-            :class="
-              step !== 'done' && photo?.level === l
-                ? 'border-orange-700 bg-[var(--bn-peach)]'
-                : 'border-slate-300 bg-white hover:bg-slate-50'
-            "
-            @click="jumpToLevel(l)"
-          >
-            <span class="text-xl font-bold">{{ photoLevels[l].label }}</span>
-            <span class="text-lg text-[var(--bn-muted)]">{{ photoLevels[l].description }}</span>
-          </button>
-        </li>
-      </ul>
-    </nav>
+    <ActivitiesReminiscenceLevelPicker
+      :levels="pickerLevels"
+      :current="level"
+      @select="startLevel"
+    />
 
     <p aria-live="polite" class="mt-4 min-h-[2.5rem] font-semibold text-green-800 print:hidden">
       {{ feedback }}
@@ -180,7 +168,7 @@
       class="rounded-[20px] border border-[var(--bn-border)] bg-[var(--bn-peach)] p-6 sm:p-10 print:hidden"
     >
       <p class="font-semibold text-orange-800">
-        Photo {{ index + 1 }} of {{ total }} · {{ level?.label }}
+        Level {{ level }} · Photo {{ index + 1 }} of {{ total }} · {{ levelInfo.label }}
       </p>
 
       <figure class="mt-4">
@@ -264,7 +252,7 @@
         tabindex="-1"
         class="bn-font-display text-3xl font-bold focus:outline-none sm:text-4xl"
       >
-        You looked at every photo
+        You finished Level {{ level }}
       </h2>
       <p class="mt-4 leading-relaxed">
         {{
@@ -276,6 +264,14 @@
 
       <div class="mt-8 grid gap-4 sm:grid-cols-2 print:hidden">
         <button
+          v-if="upcomingLevel"
+          type="button"
+          :class="btnPrimary"
+          @click="startLevel(upcomingLevel)"
+        >
+          Go to Level {{ upcomingLevel }}
+        </button>
+        <button
           v-if="savedMemories.length"
           type="button"
           :class="btnPrimary"
@@ -283,7 +279,9 @@
         >
           Print my memories
         </button>
-        <button type="button" :class="btnQuiet" @click="goTo(0)">Look at the photos again</button>
+        <button type="button" :class="btnQuiet" @click="startLevel(level)">
+          Look at these photos again
+        </button>
         <button type="button" :class="btnQuiet" @click="startOver">Start over</button>
       </div>
 
