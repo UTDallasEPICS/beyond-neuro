@@ -59,7 +59,7 @@
       description: 'Care for a plant day by day, or match each flower to its pot.',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/horticulture',
-    }
+      },
   ]
 </script>
 

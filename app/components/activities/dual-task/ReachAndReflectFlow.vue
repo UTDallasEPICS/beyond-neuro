@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import {
     REACH_AND_REFLECT_CATEGORIES,
-    ROUND_SECONDS,
     SIDE_SWITCH_MS,
     nextSecond,
     nextSide,
@@ -9,8 +8,20 @@
     type ReachSide,
   } from '~/data/dual-task/reach-and-reflect'
 
+  const LEVEL_SECONDS = [90, 75, 60, 50, 40, 30, 20]
+  const BREAK_SECONDS = 5
+
+  function secondsForLevel(index: number) {
+    return LEVEL_SECONDS[index] ?? 20
+  }
+
   const running = ref(false)
-  const secondsLeft = ref(ROUND_SECONDS)
+  const resting = ref(false)
+  const breakLeft = ref(BREAK_SECONDS)
+  const hasPlayed = ref(false)
+  const levelIndex = ref(0)
+  const totalNamed = ref(0)
+  const secondsLeft = ref(secondsForLevel(0))
   const side = ref<ReachSide>('left')
   const category = ref<(typeof REACH_AND_REFLECT_CATEGORIES)[number]>(
     REACH_AND_REFLECT_CATEGORIES[0]
@@ -21,16 +32,51 @@
 
   let sideTimer: ReturnType<typeof setInterval> | undefined
   let clockTimer: ReturnType<typeof setInterval> | undefined
+  let breakTimer: ReturnType<typeof setInterval> | undefined
 
   const btnBase =
     'inline-flex min-h-[72px] w-full items-center justify-center rounded-2xl px-6 py-3 text-2xl font-semibold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4'
   const btnPrimary = `${btnBase} bg-orange-700 text-white hover:bg-orange-800 disabled:cursor-not-allowed disabled:opacity-50`
 
+  const startLabel = computed(() => {
+    if (running.value) return 'Restart from level 1'
+    if (hasPlayed.value) return 'Start over'
+    return `Start level 1 · ${secondsForLevel(0)}s`
+  })
+
   function clearTimers() {
     if (sideTimer) clearInterval(sideTimer)
     if (clockTimer) clearInterval(clockTimer)
+    if (breakTimer) clearInterval(breakTimer)
     sideTimer = undefined
     clockTimer = undefined
+    breakTimer = undefined
+  }
+
+  function startBreak(nextIndex: number) {
+    clearTimers()
+    resting.value = true
+    breakLeft.value = BREAK_SECONDS
+    breakTimer = setInterval(() => {
+      breakLeft.value -= 1
+      if (breakLeft.value <= 0) beginLevel(nextIndex)
+    }, 1000)
+  }
+
+  function finishLevel() {
+    const count = named.value.length
+    const level = levelIndex.value + 1
+    totalNamed.value += count
+
+    if (level >= LEVEL_SECONDS.length) {
+      running.value = false
+      clearTimers()
+      status.value = `All ${LEVEL_SECONDS.length} levels complete. You named ${totalNamed.value} ${totalNamed.value === 1 ? 'item' : 'items'} in total.`
+      return
+    }
+
+    status.value = `Level ${level} complete. You named ${count} ${count === 1 ? 'item' : 'items'}. Level ${level + 1} starts in ${BREAK_SECONDS} seconds.`
+    startBreak(level)
   }
 
   function armTimers() {
@@ -41,21 +87,20 @@
     clockTimer = setInterval(() => {
       const next = nextSecond(secondsLeft.value)
       secondsLeft.value = next.secondsLeft
-      if (!next.finished) return
-      running.value = false
-      clearTimers()
-      const count = named.value.length
-      status.value = `Round complete. You named ${count} ${count === 1 ? 'item' : 'items'}.`
+      if (next.finished) finishLevel()
     }, 1000)
   }
 
-  function startRound() {
-    secondsLeft.value = ROUND_SECONDS
+  function beginLevel(index: number) {
+    resting.value = false
+    hasPlayed.value = true
+    levelIndex.value = index
+    secondsLeft.value = secondsForLevel(index)
     named.value = []
     draft.value = ''
     side.value = 'left'
     category.value = pickCategory()
-    status.value = `Round started. Name ${category.value}. Shift your weight to the left.`
+    status.value = `Level ${index + 1} of ${LEVEL_SECONDS.length}. Name ${category.value}. Shift your weight to the left.`
     if (running.value) {
       armTimers()
       return
@@ -63,9 +108,14 @@
     running.value = true
   }
 
+  function startRound() {
+    totalNamed.value = 0
+    beginLevel(0)
+  }
+
   function addItem() {
     const item = draft.value.trim()
-    if (!item || !running.value) return
+    if (!item || !running.value || resting.value) return
     named.value = [item, ...named.value]
     draft.value = ''
   }
@@ -97,7 +147,7 @@
           <div
             class="flex size-24 items-center justify-center rounded-full text-xl font-semibold transition-transform sm:size-28 sm:text-2xl"
             :class="
-              side === 'left'
+              side === 'left' && !resting
                 ? 'scale-110 bg-orange-700 text-white'
                 : 'scale-95 bg-slate-300 text-slate-700'
             "
@@ -107,7 +157,7 @@
           <div
             class="flex size-24 items-center justify-center rounded-full text-xl font-semibold transition-transform sm:size-28 sm:text-2xl"
             :class="
-              side === 'right'
+              side === 'right' && !resting
                 ? 'scale-110 bg-orange-700 text-white'
                 : 'scale-95 bg-slate-300 text-slate-700'
             "
@@ -116,16 +166,19 @@
           </div>
         </div>
         <p class="mt-4 text-center text-lg font-semibold text-orange-800">
-          Shift weight gently. Sit if you need to.
+          {{ resting ? 'Take a breath. Sit back and relax.' : 'Shift weight gently. Sit if you need to.' }}
         </p>
       </div>
 
       <div class="min-w-0 rounded-2xl border border-[var(--bn-border)] bg-white p-6">
         <p class="text-sm font-bold tracking-wide text-[var(--bn-muted)] uppercase">
-          Name as many as you can
+          Level {{ levelIndex + 1 }} of {{ LEVEL_SECONDS.length }} · Name as many as you can
         </p>
         <h2 class="bn-font-display mt-2 text-3xl font-bold capitalize">{{ category }}</h2>
-        <p class="mt-3 text-lg text-[var(--bn-muted)]">
+        <p v-if="resting" aria-hidden="true" class="mt-3 text-lg font-semibold text-orange-800">
+          Next level in {{ breakLeft }}s
+        </p>
+        <p v-else class="mt-3 text-lg text-[var(--bn-muted)]">
           Time left:
           <strong class="text-[var(--bn-navy)]">{{ secondsLeft }}s</strong>
           · Named:
@@ -137,11 +190,17 @@
           <input
             id="reach-item"
             v-model="draft"
-            :disabled="!running"
-            :placeholder="running ? 'Type one and press enter' : 'Press Start to begin'"
+            :disabled="!running || resting"
+            :placeholder="
+              resting
+                ? 'Next level starting soon'
+                : running
+                  ? 'Type one and press enter'
+                  : 'Press Start to begin'
+            "
             class="min-h-[72px] w-full min-w-0 rounded-2xl border-2 border-slate-500 bg-white px-4 text-2xl focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:outline-none disabled:bg-slate-100"
           />
-          <button type="submit" :class="btnPrimary" :disabled="!running">Add</button>
+          <button type="submit" :class="btnPrimary" :disabled="!running || resting">Add</button>
         </form>
 
         <ul class="mt-4 flex max-h-32 list-none flex-wrap gap-2 overflow-y-auto p-0">
@@ -155,7 +214,7 @@
         </ul>
 
         <button type="button" :class="[btnPrimary, 'mt-6']" @click="startRound">
-          {{ running ? 'Restart' : 'Start 60s round' }}
+          {{ startLabel }}
         </button>
       </div>
     </div>

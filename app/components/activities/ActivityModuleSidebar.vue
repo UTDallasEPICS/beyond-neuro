@@ -40,7 +40,7 @@
       label: 'Horticultural Therapy',
       href: '/activities/horticulture',
       match: '/activities/horticulture',
-    }
+    },
   ]
 
   const comingSoon = [
