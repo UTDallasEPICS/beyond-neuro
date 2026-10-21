@@ -22,18 +22,7 @@
       icon: '/activities/icon-grid.svg',
       to: '/activities/dual-task/reach-and-reflect',
     },
-    {
-      title: 'Resistance + Recall',
-      description: 'Light bands paired with memory recall tasks',
-      icon: '/activities/icon-book-orange.svg',
-      to: null,
-    },
-    {
-      title: 'Tai chi and Slow Movement',
-      description: 'Mindful sequences that load attention and motor systems',
-      icon: '/activities/icon-hash.svg',
-      to: null,
-    },
+    
   ] as const
 
   const resources = [
