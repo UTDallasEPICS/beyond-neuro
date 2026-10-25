@@ -24,11 +24,13 @@ describe('reach and reflect round', () => {
     const input = wrapper.get('input')
     expect(input.attributes('disabled')).toBeDefined()
     expect(wrapper.text()).toContain('animals')
-    expect(wrapper.text()).toContain('Start 60s round')
+    expect(wrapper.text()).toContain('Choose a level')
+    expect(wrapper.text()).toContain('90 seconds')
 
-    await wrapper.get('button[type="button"]').trigger('click')
+    await wrapper.get('button[aria-pressed]').trigger('click')
     expect(input.attributes('disabled')).toBeUndefined()
-    expect(wrapper.text()).toContain('Restart')
+    expect(wrapper.text()).toContain('Level 1 of 7')
+    expect(wrapper.text()).toContain('Restart level 1')
 
     await input.setValue('  carrot  ')
     await wrapper.get('form').trigger('submit')
