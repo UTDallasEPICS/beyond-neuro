@@ -200,30 +200,31 @@
           </span>
         </div>
 
-        <!-- Level (free pick, any time) -->
-        <p class="mt-5 text-lg font-semibold text-[#231E5A]">Choose a level</p>
-        <p class="text-base text-gray-600">You can change this any time.</p>
-        <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label="Level">
+        <!-- Level (free pick, any time) — same card style as Coloring & Visual Art -->
+        <h3 class="bn-font-display mt-6 text-2xl font-bold text-(--bn-navy)">Choose a level</h3>
+        <p class="mt-1 text-lg text-(--bn-muted)">You can change this any time.</p>
+        <div
+          class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
+          role="group"
+          aria-label="Difficulty level"
+        >
           <button
             v-for="option in LEVELS"
             :key="option.id"
             type="button"
-            :aria-pressed="levelId === option.id"
-            :aria-label="`Level ${option.id}: ${option.hint}`"
-            class="min-h-12 min-w-12 rounded-full border px-5 text-lg font-semibold focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#231E5A]"
+            class="min-h-18 rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-(--bn-navy) focus-visible:ring-offset-4 focus-visible:outline-none"
             :class="
               levelId === option.id
-                ? 'border-[#231E5A] bg-[#231E5A] text-white'
-                : 'border-[#DCD9F0] bg-white text-[#231E5A]'
+                ? 'border-orange-700 bg-(--bn-peach)'
+                : 'border-slate-300 bg-white hover:bg-slate-50'
             "
+            :aria-pressed="levelId === option.id"
             @click="pickLevel(option.id)"
           >
-            {{ option.id }}
+            <span class="block text-lg font-bold text-(--bn-navy)">Level {{ option.id }}</span>
+            <span class="block text-lg text-(--bn-muted)">{{ option.hint }}</span>
           </button>
         </div>
-        <p class="mt-3 text-lg text-gray-700">
-          <span class="font-semibold text-[#231E5A]">Level {{ level.id }}:</span> {{ level.hint }}
-        </p>
 
         <!-- The money -->
         <div
