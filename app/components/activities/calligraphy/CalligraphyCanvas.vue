@@ -7,53 +7,62 @@ const guideFontSize = computed(() => {
   const length = guideText.value.length
 
   if (length <= 1) return 'clamp(180px, 30vw, 300px)'
+
+  if (selectedLevel.value >= 6) {
+    return 'clamp(56px, 10vw, 90px)'
+  }
+
   if (length <= 3) return 'clamp(85px, 16vw, 180px)'
   if (length <= 5) return 'clamp(65px, 13vw, 145px)'
-  if (length <= 7) return 'clamp(55px, 11vw, 120px)'
-  if (length <= 10) return 'clamp(42px, 9vw, 95px)'
 
-  return 'clamp(24px, 5vw, 55px)'
+  return 'clamp(55px, 11vw, 120px)'
 })
 const levels: { level: Level; label: string; items: string[] }[] = [
   {
     level: 1,
-    label: 'Straight uppercase letters',
-    items: ['I', 'L', 'T', 'H', 'E'],
+    label: 'Uppercase letters',
+    items: ['L', 'T', 'H', 'E', 'C', 'O', 'S', 'U'],
   },
   {
     level: 2,
-    label: 'Curved uppercase letters',
-    items: ['C', 'O', 'S', 'U', 'G'],
+    label: 'Lowercase letters',
+    items: ['l', 't', 'h', 'e', 'c', 'o', 's', 'u'],
   },
   {
     level: 3,
-    label: 'Lowercase letters',
-    items: ['a', 'b', 'd', 'e', 'g'],
+    label: 'Short words',
+    items: ['tea', 'cup', 'pen', 'day', 'sun'],
   },
   {
     level: 4,
-    label: 'Short words',
-    items: ['CAT', 'DOG', 'SUN', 'PEN', 'BOOK'],
+    label: 'Everyday words',
+    items: ['home', 'book', 'meal', 'water', 'music'],
   },
   {
     level: 5,
-    label: 'Everyday words',
-    items: ['LOVE', 'HOPE', 'HOME', 'SMILE', 'HAPPY'],
+    label: 'Longer words',
+    items: ['garden', 'family', 'friend', 'morning', 'walking'],
   },
   {
     level: 6,
-    label: 'Longer words',
-    items: ['FAMILY', 'FRIEND', 'GARDEN', 'MORNING', 'FLOWER'],
+    label: 'Uppercase sentences',
+    items: [
+      'I AM HOME.',
+      'I LIKE TEA.',
+      'IT IS SUNNY.',
+      'I READ A BOOK.',
+      'I ENJOY MUSIC.',
+    ],
   },
   {
     level: 7,
-    label: 'Short sentences',
+    label: 'Mixed-case sentences',
     items: [
-      'I LOVE YOU',
-      'I AM HAPPY',
-      'LOVELY DAY',
-      'THANK YOU',
-      'GOOD JOB',
+      'I am home.',
+      'I like tea.',
+      'It is sunny.',
+      'I read a book.',
+      'I enjoy music.',
     ],
   },
 ]
@@ -177,94 +186,108 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ActivityCard
-    instructions="Trace the guide slowly with your finger or mouse. Take your time and practice at your own pace."
-    @clear="clearCanvas"
-  >
-    <template #palette>
-      <div class="w-full">
-        <!-- Level selection -->
-        <div class="flex flex-wrap items-center gap-3">
-          <span class="text-lg font-semibold text-[var(--bn-navy)]">
-            Level:
-          </span>
+  <div>
+    <h2 class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">
+      Choose a level
+    </h2>
 
-          <button
-            v-for="level in levels"
-            :key="level.level"
-            type="button"
-            class="min-h-[56px] rounded-full border-2 px-5 py-3 text-lg font-semibold focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
-            :class="
-              selectedLevel === level.level
-                ? 'border-[var(--bn-navy)] bg-[var(--bn-navy)] text-white'
-                : 'border-[var(--bn-border)] bg-white text-[var(--bn-navy)] hover:border-orange-700'
-            "
-            :aria-pressed="selectedLevel === level.level"
-            @click="selectLevel(level.level)"
-          >
-            Level {{ level.level }}
-          </button>
-        </div>
+    <p class="mt-1 text-lg text-[var(--bn-muted)]">
+      You can change this any time.
+    </p>
 
-        <!-- Level description -->
-        <p class="mt-4 text-base text-[var(--bn-muted)]">
-          {{ currentLevel.label }}
-        </p>
-
-        <!-- Letter, word, or sentence selection -->
-        <div class="mt-4 flex flex-wrap items-center gap-3">
-          <span class="text-lg font-semibold text-[var(--bn-navy)]">
-            Practice:
-          </span>
-
-          <button
-            v-for="(item, index) in currentLevel.items"
-            :key="`${selectedLevel}-${index}`"
-            type="button"
-            class="min-h-[48px] rounded-full border-2 px-4 py-2 text-base font-semibold focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
-            :class="
-              selectedItem === index
-                ? 'border-[var(--bn-navy)] bg-[var(--bn-navy)] text-white'
-                : 'border-[var(--bn-border)] bg-white text-[var(--bn-navy)] hover:border-orange-700'
-            "
-            :aria-pressed="selectedItem === index"
-            @click="selectItem(index)"
-          >
-            {{ item }}
-          </button>
-        </div>
-      </div>
-    </template>
-
-    <!-- Tracing canvas -->
     <div
-      class="relative mt-6 h-[420px] touch-none overflow-hidden rounded-2xl border border-[var(--bn-border)] bg-white sm:h-[500px]"
+      class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
+      role="group"
+      aria-label="Difficulty level"
     >
-      <!-- Pale tracing guide -->
-      <div
-        class="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden px-4 text-center font-serif font-bold text-slate-200 select-none"
-        :style="{ fontSize: guideFontSize }"
-        aria-hidden="true"
+      <button
+        v-for="level in levels"
+        :key="level.level"
+        type="button"
+        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        :class="
+          selectedLevel === level.level
+            ? 'border-orange-700 bg-[var(--bn-peach)]'
+            : 'border-slate-300 bg-white hover:bg-slate-50'
+        "
+        :aria-pressed="selectedLevel === level.level"
+        @click="selectLevel(level.level)"
       >
-        {{ guideText }}
-      </div>
+        <span class="block text-lg font-bold text-[var(--bn-navy)]">
+          Level {{ level.level }}
+        </span>
 
-      <!-- Drawing surface -->
-      <canvas
-        ref="canvas"
-        class="absolute inset-0 h-full w-full cursor-crosshair touch-none"
-        role="img"
-        :aria-label="`Tracing canvas for ${guideText}`"
-        @pointerdown.prevent="startDrawing"
-        @pointermove.prevent="draw"
-        @pointerup.prevent="stopDrawing"
-        @pointercancel.prevent="stopDrawing"
-      />
+        <span class="block text-lg text-[var(--bn-muted)]">
+          {{ level.label }}
+        </span>
+      </button>
     </div>
 
-    <p class="mt-4 text-lg text-[var(--bn-muted)]" aria-live="polite">
-      Trace {{ guideText }} as many times as you like.
-      Clear the canvas whenever you want to start again.
-    </p>
-  </ActivityCard>
+    <ActivityCard
+      class="mt-6"
+      instructions="Trace the guide slowly with your finger or mouse. Take your time and practice at your own pace."
+      @clear="clearCanvas"
+    >
+      <template #palette>
+        <div class="w-full">
+          <p class="text-lg font-semibold text-[var(--bn-navy)]">
+            Choose what to practice
+          </p>
+
+          <div
+            class="mt-3 flex flex-wrap gap-3"
+            role="group"
+            aria-label="Practice guide"
+          >
+            <button
+              v-for="(item, index) in currentLevel.items"
+              :key="`${selectedLevel}-${index}`"
+              type="button"
+              class="min-h-[56px] min-w-[56px] rounded-2xl border-2 px-4 py-3 text-lg font-semibold text-[var(--bn-navy)] focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+              :class="
+                selectedItem === index
+                  ? 'border-orange-700 bg-[var(--bn-peach)]'
+                  : 'border-slate-300 bg-white hover:bg-slate-50'
+              "
+              :aria-pressed="selectedItem === index"
+              @click="selectItem(index)"
+            >
+              {{ item }}
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <div
+        class="relative mt-6 h-[420px] touch-none overflow-hidden rounded-2xl border border-[var(--bn-border)] bg-white sm:h-[500px]"
+      >
+        <div
+          class="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden px-4 text-center font-serif font-bold text-slate-200 select-none"
+          :style="{ fontSize: guideFontSize }"
+          aria-hidden="true"
+        >
+          {{ guideText }}
+        </div>
+
+        <canvas
+          ref="canvas"
+          class="absolute inset-0 h-full w-full cursor-crosshair touch-none"
+          role="img"
+          :aria-label="`Tracing canvas for ${guideText}`"
+          @pointerdown.prevent="startDrawing"
+          @pointermove.prevent="draw"
+          @pointerup.prevent="stopDrawing"
+          @pointercancel.prevent="stopDrawing"
+        />
+      </div>
+
+      <p
+        class="mt-4 text-lg text-[var(--bn-muted)]"
+        aria-live="polite"
+      >
+        Trace {{ guideText }} as many times as you like.
+        Clear the canvas whenever you want to start again.
+      </p>
+    </ActivityCard>
+  </div>
 </template>

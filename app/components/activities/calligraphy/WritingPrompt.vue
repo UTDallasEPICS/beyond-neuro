@@ -1,5 +1,6 @@
 
 <script setup lang="ts">
+const levelHints = ['Simple words', 'Everyday words', 'Longer words', 'Short sentences', 'Longer sentences', 'Extended sentences', 'Two-part sentences']
   const levels = [
     {
       id: 'level-1',
@@ -151,140 +152,165 @@
 </script>
 
 <template>
-  <ActivityCard
-    instructions="Type the word or sentence as it appears. Click the text to start. Take your time — there is no timer."
-    @clear="reset"
-  >
-    <template #palette>
-      <div class="flex flex-wrap items-center gap-3">
-        <span class="text-lg font-semibold text-[var(--bn-navy)]">
-          Level:
+  <div>
+    <h2 class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">
+      Choose a level
+    </h2>
+
+    <p class="mt-1 text-lg text-[var(--bn-muted)]">
+      You can change this any time.
+    </p>
+
+    <div
+      class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
+      role="group"
+      aria-label="Difficulty level"
+    >
+      <button
+        v-for="(level, index) in levels"
+        :key="level.id"
+        type="button"
+        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        :class="
+          selectedLevel === index
+            ? 'border-orange-700 bg-[var(--bn-peach)]'
+            : 'border-slate-300 bg-white hover:bg-slate-50'
+        "
+        :aria-pressed="selectedLevel === index"
+        @click="chooseLevel(index)"
+      >
+        <span class="block text-lg font-bold text-[var(--bn-navy)]">
+          {{ level.label }}
         </span>
 
-        <button
-          v-for="(level, index) in levels"
-          :key="level.id"
-          type="button"
-          class="min-h-[56px] rounded-full border-2 px-5 py-3 text-lg font-semibold focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
-          :class="
-            selectedLevel === index
-              ? 'border-[var(--bn-navy)] bg-[var(--bn-navy)] text-white'
-              : 'border-[var(--bn-border)] bg-white text-[var(--bn-navy)] hover:border-orange-700'
-          "
-          :aria-pressed="selectedLevel === index"
-          @click="chooseLevel(index)"
-        >
-          {{ level.label }}
-        </button>
-      </div>
-    </template>
+        <span class="block text-lg text-[var(--bn-muted)]">
+          {{ levelHints[index] }}
+        </span>
+      </button>
+    </div>
 
-    <div class="mt-8 rounded-2xl border border-[var(--bn-border)] bg-white p-6 sm:p-8">
-      <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <p class="text-lg text-[var(--bn-muted)]">
-          {{ isSentence ? 'Sentence' : 'Word' }}
-          {{ currentIndex + 1 }} of {{ currentLevel.words.length }}
-        </p>
-
-        <p class="text-base font-semibold text-[var(--bn-navy)]">
-          {{ currentLevel.label }}
-        </p>
-      </div>
-
-      <!-- One word or sentence at a time -->
+    <ActivityCard
+      class="mt-6"
+      instructions="Type the word or sentence as it appears. Click the text to start. Take your time — there is no timer."
+      @clear="reset"
+    >
       <div
-        class="relative min-h-[150px] cursor-text rounded-xl border border-[var(--bn-border)] p-5 focus-within:ring-2 focus-within:ring-[var(--bn-navy)]/30"
-        @click="focusInput"
+        class="mt-6 rounded-2xl border border-[var(--bn-border)] bg-white p-6 sm:p-8"
       >
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <p class="text-lg text-[var(--bn-muted)]">
+            {{ isSentence ? 'Sentence' : 'Word' }}
+            {{ currentIndex + 1 }} of {{ currentLevel.words.length }}
+          </p>
+
+          <p class="text-lg font-semibold text-[var(--bn-navy)]">
+            {{ currentLevel.label }}
+          </p>
+        </div>
+
         <div
-          aria-hidden="true"
-          class="pointer-events-none font-mono text-[clamp(1.5rem,3vw,2.25rem)] leading-[1.85] tracking-wide break-words select-none"
-        ><span
-            v-for="(character, index) in characters"
-            :key="index"
-            class="relative whitespace-pre-wrap"
-            :class="characterClass(index)"
+          class="relative min-h-[150px] cursor-text rounded-2xl border border-[var(--bn-border)] p-5 focus-within:ring-4 focus-within:ring-[var(--bn-navy)]"
+          @click="focusInput"
+        >
+          <div
+            aria-hidden="true"
+            class="pointer-events-none font-mono text-[clamp(1.5rem,3vw,2.25rem)] leading-[1.85] tracking-wide break-words select-none"
           ><span
+              v-for="(character, index) in characters"
+              :key="index"
+              class="relative whitespace-pre-wrap"
+              :class="characterClass(index)"
+            ><span
+                v-if="
+                  index === typedCharacters.length &&
+                  hasFocus &&
+                  !completed
+                "
+                class="absolute top-[0.12em] bottom-[0.12em] left-0 w-[3px] rounded-full bg-amber-500"
+              />{{ character }}</span><span
               v-if="
-                index === typedCharacters.length &&
+                typedCharacters.length === characters.length &&
                 hasFocus &&
                 !completed
               "
-              class="absolute top-[0.12em] bottom-[0.12em] left-0 w-[3px] rounded-full bg-amber-500"
-            />{{ character }}</span><span
-            v-if="
-              typedCharacters.length === characters.length &&
-              hasFocus &&
-              !completed
-            "
-            class="inline-block h-[1.2em] w-[3px] translate-y-[0.2em] bg-amber-500"
-          /></div>
+              class="inline-block h-[1.2em] w-[3px] translate-y-[0.2em] bg-amber-500"
+            /></div>
 
-        <textarea
-          ref="inputRef"
-          :value="typedText"
-          :disabled="completed"
-          :aria-label="`Type: ${currentPrompt}`"
-          :aria-describedby="levelFinished ? 'typing-result' : 'typing-help'"
-          autocomplete="off"
-          autocapitalize="off"
-          spellcheck="false"
-          class="absolute inset-0 h-full w-full resize-none cursor-text opacity-0"
-          @input="onInput"
-          @focus="hasFocus = true"
-          @blur="hasFocus = false"
-          @keydown.enter.prevent
-        />
-      </div>
+          <textarea
+            ref="inputRef"
+            :value="typedText"
+            :disabled="completed"
+            :aria-label="`Type: ${currentPrompt}`"
+            aria-describedby="typing-help"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            class="absolute inset-0 h-full w-full resize-none cursor-text opacity-0"
+            @input="onInput"
+            @focus="hasFocus = true"
+            @blur="hasFocus = false"
+            @keydown.enter.prevent
+          />
+        </div>
 
-      <p
-        id="typing-help"
-        class="mt-4 text-base text-[var(--bn-muted)]"
-      >
-        Click the text and start typing. Use Backspace to correct a letter.
-      </p>
-
-      <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <p class="text-lg font-semibold text-[var(--bn-navy)]">
-          {{ typedCharacters.length }} / {{ characters.length }} characters
-
-          <span class="ml-2 text-base font-normal text-[var(--bn-muted)]">
-            · {{ correctCount }} correct
-          </span>
+        <p
+          id="typing-help"
+          class="mt-4 text-lg text-[var(--bn-muted)]"
+        >
+          Click the text and start typing. Use Backspace to correct a letter.
         </p>
 
-        <button
-          type="button"
-          class="min-h-[56px] rounded-2xl border-2 border-[var(--bn-border)] bg-white px-6 py-3 text-lg font-semibold text-[var(--bn-navy)] hover:border-orange-700 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
-          @click="restartPrompt"
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <p class="text-lg font-semibold text-[var(--bn-navy)]">
+            {{ typedCharacters.length }} / {{ characters.length }} characters
+
+            <span class="ml-2 font-normal text-[var(--bn-muted)]">
+              · {{ correctCount }} correct
+            </span>
+          </p>
+
+          <button
+            type="button"
+            class="min-h-[56px] rounded-2xl border-2 border-slate-400 bg-white px-6 py-3 text-lg font-semibold text-[var(--bn-navy)] hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+            @click="restartPrompt"
+          >
+            Restart
+          </button>
+        </div>
+
+        <div
+          v-if="completed"
+          id="typing-result"
+          class="mt-6"
+          role="status"
         >
-          ↻ Restart
-        </button>
+          <p class="text-lg font-semibold text-green-700">
+            {{
+              levelFinished
+                ? 'Great work! You completed this level!'
+                : 'Great work! Correct!'
+            }}
+          </p>
+
+          <button
+            v-if="!isLastPrompt"
+            type="button"
+            class="mt-4 min-h-[56px] rounded-2xl border-2 border-slate-400 bg-white px-6 py-3 text-lg font-semibold text-[var(--bn-navy)] hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+            @click="nextPrompt"
+          >
+            Next {{ isSentence ? 'Sentence' : 'Word' }}
+          </button>
+
+          <button
+            v-else
+            type="button"
+            class="mt-4 min-h-[56px] rounded-2xl border-2 border-slate-400 bg-white px-6 py-3 text-lg font-semibold text-[var(--bn-navy)] hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+            @click="reset"
+          >
+            Practice Again
+          </button>
+        </div>
       </div>
-
-      <div v-if="completed" class="mt-6" role="status">
-        <p class="text-lg font-semibold text-green-700">
-          {{ levelFinished ? 'Great work! You completed this level!' : 'Great work! Correct!' }}
-        </p>
-
-        <button
-          v-if="!isLastPrompt"
-          type="button"
-          class="mt-4 min-h-[56px] rounded-2xl bg-[var(--bn-navy)] px-6 py-3 text-lg font-semibold text-white hover:opacity-90 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
-          @click="nextPrompt"
-        >
-          Next {{ isSentence ? 'Sentence' : 'Word' }} →
-        </button>
-
-        <button
-          v-else
-          type="button"
-          class="mt-4 min-h-[56px] rounded-2xl bg-[var(--bn-navy)] px-6 py-3 text-lg font-semibold text-white hover:opacity-90 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
-          @click="reset"
-        >
-          ↻ Practice Again
-        </button>
-      </div>
-    </div>
-  </ActivityCard>
+    </ActivityCard>
+  </div>
 </template>
