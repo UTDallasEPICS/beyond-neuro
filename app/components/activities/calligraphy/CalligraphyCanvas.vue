@@ -196,7 +196,7 @@ onBeforeUnmount(() => {
     </p>
 
     <div
-      class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
+      class="mt-4 grid auto-rows-[minmax(120px,auto)] grid-cols-2 gap-4 sm:grid-cols-4"
       role="group"
       aria-label="Difficulty level"
     >
@@ -204,7 +204,7 @@ onBeforeUnmount(() => {
         v-for="level in levels"
         :key="level.level"
         type="button"
-        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="flex h-full min-w-0 flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           selectedLevel === level.level
             ? 'border-orange-700 bg-[var(--bn-peach)]'
@@ -213,11 +213,11 @@ onBeforeUnmount(() => {
         :aria-pressed="selectedLevel === level.level"
         @click="selectLevel(level.level)"
       >
-        <span class="block text-lg font-bold text-[var(--bn-navy)]">
+        <span class="block text-lg leading-7 font-bold text-[var(--bn-navy)]">
           Level {{ level.level }}
         </span>
 
-        <span class="block text-lg text-[var(--bn-muted)]">
+        <span class="mt-1 block text-lg leading-7 text-[var(--bn-muted)]">
           {{ level.label }}
         </span>
       </button>

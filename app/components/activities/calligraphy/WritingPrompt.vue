@@ -162,7 +162,7 @@ const levelHints = ['Simple words', 'Everyday words', 'Longer words', 'Short sen
     </p>
 
     <div
-      class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
+      class="mt-4 grid auto-rows-[minmax(120px,auto)] grid-cols-2 gap-4 sm:grid-cols-4"
       role="group"
       aria-label="Difficulty level"
     >
@@ -170,7 +170,7 @@ const levelHints = ['Simple words', 'Everyday words', 'Longer words', 'Short sen
         v-for="(level, index) in levels"
         :key="level.id"
         type="button"
-        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="flex h-full min-w-0 flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           selectedLevel === index
             ? 'border-orange-700 bg-[var(--bn-peach)]'
@@ -179,11 +179,11 @@ const levelHints = ['Simple words', 'Everyday words', 'Longer words', 'Short sen
         :aria-pressed="selectedLevel === index"
         @click="chooseLevel(index)"
       >
-        <span class="block text-lg font-bold text-[var(--bn-navy)]">
+        <span class="block text-lg leading-7 font-bold text-[var(--bn-navy)]">
           {{ level.label }}
         </span>
 
-        <span class="block text-lg text-[var(--bn-muted)]">
+        <span class="mt-1 block text-lg leading-7 text-[var(--bn-muted)]">
           {{ levelHints[index] }}
         </span>
       </button>
