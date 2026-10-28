@@ -7,5 +7,5 @@
 </script>
 
 <template>
-    <ActivitiesCalligraphyCanvas />
+    <ActivitiesCalligraphyCalligraphyCanvas />
 </template>
