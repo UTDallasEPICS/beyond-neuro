@@ -26,8 +26,8 @@
           Photo Memory Starters
         </h1>
         <p class="mt-4 text-2xl leading-relaxed text-[var(--bn-navy)]">
-          Look at each photo and talk about what it brings to mind. Photos start with everyday
-          moments and move closer to home. There are no wrong answers.
+          Find the pictures that match, then talk about what they bring to mind. You get new
+          pictures every time you play. Take your time.
         </p>
 
         <ActivitiesReminiscencePhotoMemoryFlow />

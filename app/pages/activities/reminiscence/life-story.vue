@@ -29,7 +29,7 @@
       description:
         'Short structured prompts that help capture favorite people, places, and stories.',
       icon: '/activities/icon-grid.svg',
-      to: null,
+      to: '/activities/reminiscence/journal',
     },
     {
       title: 'Caregiver Prompt Cards',

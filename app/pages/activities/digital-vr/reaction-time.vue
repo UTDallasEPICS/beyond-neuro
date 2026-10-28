@@ -7,5 +7,5 @@
 </script>
 
 <template>
-  <ReactionTime />
+  <ActivitiesDigitalVrReactionTime />
 </template>

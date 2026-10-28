@@ -11,6 +11,7 @@
   const tabs = [
     { label: 'Calligraphy', to: '/activities/writing' },
     { label: 'Writing Practice', to: '/activities/writing/writing-prompt' },
+    { label: 'Sentence Completion', to: '/activities/writing/sentence-completion' }
   ]
 </script>
 

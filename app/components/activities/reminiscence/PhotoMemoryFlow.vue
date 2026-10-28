@@ -1,5 +1,10 @@
 <script setup lang="ts">
-  import { photoLevels, photoMemoryPrompts } from '~/data/reminiscence/photo-memory-prompts'
+  import {
+    buildLevel,
+    photoLevels,
+    type PhotoObjectId,
+    type PhotoRound,
+  } from '~/data/reminiscence/photo-memory-prompts'
   import {
     REMINISCENCE_LEVELS,
     nextLevel,
@@ -7,49 +12,55 @@
   } from '~/data/reminiscence/levels'
 
   interface SavedMemory {
+    name: string
     question: string
     response: string
     savedAt: string
   }
 
-  const STORAGE_KEY = 'bn-photo-memories'
-  const ASK_QUESTION = 'Does this photo remind you of anything?'
+  const STORAGE_KEY = 'bn-photo-find-memories'
 
-  type Step = 'ask' | 'followup' | 'done'
-  const step = ref<Step>('ask')
+  type Step = 'find' | 'talk' | 'done'
+  const step = ref<Step>('find')
   const level = ref<ReminiscenceLevel>(1)
-  const index = ref(0) // which photo we are on within the level
-  const questionIndex = ref(0) // which follow-up question is showing
+  const rounds = ref<PhotoRound[]>([])
+  const roundIndex = ref(0)
+  const selected = ref<Set<string>>(new Set())
+  const revealed = ref(false)
+  const questionIndex = ref(0)
   const response = ref('')
-  const saved = ref<Record<string, SavedMemory>>({})
+  const saved = ref<Partial<Record<PhotoObjectId, SavedMemory>>>({})
   const feedback = ref('')
 
   const heading = ref<HTMLElement | null>(null)
-  const brokenImages = ref<Record<string, boolean>>({}) // photos whose file failed to load
 
-  const levelPhotos = computed(() => photoMemoryPrompts.filter((p) => p.level === level.value))
-  const total = computed(() => levelPhotos.value.length)
-  const photo = computed(() => levelPhotos.value[index.value])
-  const followUp = computed(() => photo.value?.followUps[questionIndex.value] ?? '')
-  const levelInfo = computed(() => photoLevels[level.value])
+  const round = computed(() => rounds.value[roundIndex.value])
+  const rule = computed(() => photoLevels[level.value])
   const upcomingLevel = computed(() => nextLevel(level.value))
-  const showImage = computed(() => !!photo.value?.image && !brokenImages.value[photo.value.id])
+  const targetKeys = computed(
+    () => new Set(round.value?.tiles.filter((t) => t.isTarget).map((t) => t.key) ?? [])
+  )
+  const memoryPrompt = computed(() => round.value?.target.memoryPrompts[questionIndex.value] ?? '')
+  const foundPhoto = computed(() => round.value?.tiles.find((t) => t.isTarget))
 
-  const pickerLevels = REMINISCENCE_LEVELS.map((l) => ({ level: l, ...photoLevels[l] }))
+  const findPrompt = computed(() => {
+    const target = round.value?.target
+    if (!target) return ''
+    return rule.value.targets === 1
+      ? `Tap the picture of a ${target.name}`
+      : `Tap every picture of a ${target.name}`
+  })
+
+  const pickerLevels = REMINISCENCE_LEVELS.map((l) => ({
+    level: l,
+    label: photoLevels[l].label,
+    description: photoLevels[l].description,
+  }))
 
   const savedMemories = computed(() =>
-    photoMemoryPrompts
-      .filter((p) => saved.value[p.id]?.response)
-      .map((p) => {
-        const s = saved.value[p.id]!
-        return {
-          id: p.id,
-          title: p.title,
-          question: s.question,
-          response: s.response,
-          savedAt: s.savedAt,
-        }
-      })
+    Object.entries(saved.value)
+      .filter(([, s]) => s?.response)
+      .map(([id, s]) => ({ id, ...s! }))
       .sort((a, b) => b.savedAt.localeCompare(a.savedAt))
   )
 
@@ -60,6 +71,7 @@
     } catch {
       saved.value = {}
     }
+    startLevel(1)
   })
 
   function persist() {
@@ -70,57 +82,97 @@
     }
   }
 
-  watch([step, index, questionIndex], () => nextTick(() => heading.value?.focus()))
+  watch([step, roundIndex], () => nextTick(() => heading.value?.focus()))
 
-  function goTo(i: number) {
-    index.value = i
+  function goToRound(i: number) {
+    roundIndex.value = i
+    selected.value = new Set()
+    revealed.value = false
     questionIndex.value = 0
     response.value = ''
-    step.value = 'ask'
+    step.value = 'find'
   }
 
   function startLevel(l: ReminiscenceLevel) {
     feedback.value = ''
     level.value = l
-    goTo(0)
+    rounds.value = buildLevel(l)
+    goToRound(0)
   }
 
-  function goToNext() {
-    if (index.value < total.value - 1) goTo(index.value + 1)
-    else step.value = 'done'
-  }
-
-  function answerYes() {
-    if (!photo.value) return
+  function toggle(key: string) {
+    if (revealed.value) return
+    const next = new Set(selected.value)
+    if (next.has(key)) next.delete(key)
+    else next.add(key)
+    selected.value = next
     feedback.value = ''
-    questionIndex.value = 0
-
-    response.value = saved.value[photo.value.id]?.response ?? ''
-    step.value = 'followup'
   }
 
-  function answerNo() {
-    feedback.value = 'That is okay. Here is another photo.'
-    goToNext()
+  function startTalking() {
+    const target = round.value?.target
+    if (!target) return
+    response.value = saved.value[target.id]?.response ?? ''
+    step.value = 'talk'
+  }
+
+  function check() {
+    const target = round.value?.target
+    if (!target) return
+    const picks = [...selected.value]
+    const wrong = picks.filter((k) => !targetKeys.value.has(k)).length
+    const missing = targetKeys.value.size - (picks.length - wrong)
+
+    if (!wrong && !missing) {
+      feedback.value =
+        targetKeys.value.size === 1
+          ? `Well done! You found the ${target.name}.`
+          : `Well done! You found all the ${target.plural}.`
+      startTalking()
+      return
+    }
+
+    const parts = ['Not quite.']
+    if (wrong)
+      parts.push(
+        `${wrong === 1 ? 'One picture you picked is' : `${wrong} pictures you picked are`} not a ${target.name}.`
+      )
+    if (missing)
+      parts.push(`${missing === 1 ? 'There is 1 more' : `There are ${missing} more`} to find.`)
+    feedback.value = parts.join(' ')
+  }
+
+  function showMe() {
+    const target = round.value?.target
+    if (!target) return
+    revealed.value = true
+    selected.value = new Set(targetKeys.value)
+    feedback.value =
+      targetKeys.value.size === 1
+        ? `Here it is. That is the ${target.name}.`
+        : `Here they are. These are the ${target.plural}.`
   }
 
   function nextQuestion() {
-    if (!photo.value) return
-    questionIndex.value = (questionIndex.value + 1) % photo.value.followUps.length
+    const target = round.value?.target
+    if (!target) return
+    questionIndex.value = (questionIndex.value + 1) % target.memoryPrompts.length
   }
 
-  function goBack() {
-    feedback.value = ''
-    if (index.value > 0) goTo(index.value - 1)
+  function goToNext() {
+    if (roundIndex.value < rounds.value.length - 1) goToRound(roundIndex.value + 1)
+    else step.value = 'done'
   }
 
   function saveAndNext() {
-    if (!photo.value) return
+    const target = round.value?.target
+    if (!target) return
     const text = response.value.trim()
     saved.value = {
       ...saved.value,
-      [photo.value.id]: {
-        question: followUp.value,
+      [target.id]: {
+        name: target.name,
+        question: memoryPrompt.value,
         response: text,
         savedAt: new Date().toISOString(),
       },
@@ -145,6 +197,12 @@
     window.print()
   }
 
+  function tileClass(key: string) {
+    if (revealed.value && targetKeys.value.has(key)) return 'border-green-700 ring-4 ring-green-700'
+    if (selected.value.has(key)) return 'border-orange-700 ring-4 ring-orange-700'
+    return 'border-[var(--bn-border)]'
+  }
+
   const btnBase =
     'inline-flex min-h-[72px] min-w-[72px] items-center justify-center gap-3 rounded-2xl px-6 py-3 text-2xl font-semibold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4'
   const btnPrimary = `${btnBase} bg-orange-700 text-white hover:bg-orange-800`
@@ -164,59 +222,88 @@
     </p>
 
     <div
-      v-if="step !== 'done' && photo"
+      v-if="step !== 'done' && round"
       class="rounded-[20px] border border-[var(--bn-border)] bg-[var(--bn-peach)] p-6 sm:p-10 print:hidden"
     >
       <p class="font-semibold text-orange-800">
-        Level {{ level }} · Photo {{ index + 1 }} of {{ total }} · {{ levelInfo.label }}
+        Level {{ level }} · Round {{ roundIndex + 1 }} of {{ rounds.length }} · {{ rule.label }}
       </p>
 
-      <figure class="mt-4">
-        <img
-          v-if="showImage"
-          :src="photo.image"
-          :alt="photo.alt"
-          class="aspect-[4/3] w-full rounded-2xl border border-[var(--bn-border)] bg-white object-cover"
-          @error="brokenImages[photo.id] = true"
-        />
-
-        <div
-          v-else
-          role="img"
-          :aria-label="photo.alt"
-          class="flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-slate-400 bg-white p-6 text-center"
+      <template v-if="step === 'find'">
+        <h2
+          ref="heading"
+          tabindex="-1"
+          class="bn-font-display mt-4 text-3xl leading-snug font-bold focus:outline-none sm:text-4xl"
         >
-          <img src="/activities/icon-image.svg" alt="" class="size-16" width="64" height="64" />
-          <p class="max-w-[28ch] leading-relaxed text-[var(--bn-muted)]">{{ photo.alt }}</p>
-        </div>
-        <figcaption class="bn-font-display mt-4 text-2xl font-bold">{{ photo.title }}</figcaption>
-      </figure>
+          {{ findPrompt }}
+        </h2>
+        <p class="mt-2 text-[var(--bn-muted)]">
+          {{ rule.targets === 1 ? 'There is 1 to find.' : `There are ${rule.targets} to find.` }}
+          Tap a picture again to unselect it.
+        </p>
 
-      <h2
-        ref="heading"
-        tabindex="-1"
-        class="bn-font-display mt-6 text-3xl leading-snug font-bold focus:outline-none sm:text-4xl"
-      >
-        {{ step === 'ask' ? ASK_QUESTION : followUp }}
-      </h2>
+        <ul
+          class="mt-6 grid list-none gap-3 p-0 sm:gap-4"
+          :class="rule.tiles === 4 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'"
+        >
+          <li v-for="tile in round.tiles" :key="tile.key">
+            <button
+              type="button"
+              :aria-pressed="selected.has(tile.key)"
+              :aria-label="tile.alt"
+              class="relative block w-full overflow-hidden rounded-2xl border-2 bg-white focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+              :class="tileClass(tile.key)"
+              @click="toggle(tile.key)"
+            >
+              <img
+                :src="tile.src"
+                :alt="tile.alt"
+                width="512"
+                height="512"
+                class="aspect-square w-full object-cover"
+              />
+              <span
+                v-if="selected.has(tile.key)"
+                aria-hidden="true"
+                class="absolute top-2 right-2 flex size-12 items-center justify-center rounded-full text-2xl font-bold text-white"
+                :class="revealed ? 'bg-green-700' : 'bg-orange-700'"
+              >
+                ✓
+              </span>
+            </button>
+          </li>
+        </ul>
 
-      <template v-if="step === 'ask'">
-        <div class="mt-8 grid grid-cols-2 gap-4">
-          <button type="button" :class="btnPrimary" @click="answerYes">Yes</button>
-          <button type="button" :class="btnPrimary" @click="answerNo">No</button>
+        <div class="mt-8 grid gap-4 sm:grid-cols-2">
+          <button v-if="!revealed" type="button" :class="btnPrimary" @click="check">
+            Check my answer
+          </button>
+          <button v-if="!revealed" type="button" :class="btnQuiet" @click="showMe">Show me</button>
+          <button v-else type="button" :class="[btnPrimary, 'sm:col-span-2']" @click="startTalking">
+            Continue
+          </button>
         </div>
-        <button v-if="index > 0" type="button" :class="[btnQuiet, 'mt-4 w-full']" @click="goBack">
-          Previous photo
-        </button>
       </template>
 
       <template v-else>
-        <button
-          v-if="photo.followUps.length > 1"
-          type="button"
-          :class="[btnQuiet, 'mt-4 w-full']"
-          @click="nextQuestion"
+        <img
+          v-if="foundPhoto"
+          :src="foundPhoto.src"
+          :alt="foundPhoto.alt"
+          width="512"
+          height="512"
+          class="mt-4 aspect-[4/3] w-full rounded-2xl border border-[var(--bn-border)] bg-white object-cover"
+        />
+
+        <h2
+          ref="heading"
+          tabindex="-1"
+          class="bn-font-display mt-6 text-3xl leading-snug font-bold focus:outline-none sm:text-4xl"
         >
+          {{ memoryPrompt }}
+        </h2>
+
+        <button type="button" :class="[btnQuiet, 'mt-4 w-full']" @click="nextQuestion">
           Ask a different question
         </button>
 
@@ -235,10 +322,8 @@
         />
 
         <div class="mt-6 grid gap-4 sm:grid-cols-2">
-          <button type="button" :class="btnPrimary" @click="saveAndNext">
-            Save and next photo
-          </button>
-          <button type="button" :class="btnQuiet" @click="skip">Skip this photo</button>
+          <button type="button" :class="btnPrimary" @click="saveAndNext">Save and continue</button>
+          <button type="button" :class="btnQuiet" @click="skip">Skip</button>
         </div>
       </template>
     </div>
@@ -280,7 +365,7 @@
           Print my memories
         </button>
         <button type="button" :class="btnQuiet" @click="startLevel(level)">
-          Look at these photos again
+          Play this level with new pictures
         </button>
         <button type="button" :class="btnQuiet" @click="startOver">Start over</button>
       </div>
@@ -295,7 +380,7 @@
             :key="memory.id"
             class="rounded-2xl border border-[var(--bn-border)] bg-white p-6"
           >
-            <p class="font-semibold">{{ memory.title }}</p>
+            <p class="font-semibold capitalize">{{ memory.name }}</p>
             <p class="mt-1 leading-relaxed text-[var(--bn-muted)]">{{ memory.question }}</p>
             <p class="mt-3 leading-relaxed whitespace-pre-line">{{ memory.response }}</p>
           </li>

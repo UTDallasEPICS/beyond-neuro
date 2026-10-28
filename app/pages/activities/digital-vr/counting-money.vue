@@ -7,5 +7,5 @@
 </script>
 
 <template>
-  <CountingMoney />
+  <ActivitiesDigitalVrCountingMoney />
 </template>

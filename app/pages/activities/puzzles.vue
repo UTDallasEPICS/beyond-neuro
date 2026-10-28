@@ -10,6 +10,7 @@
   const tabs = [
     { label: 'Matching game', to: '/activities/puzzles' },
     { label: 'Word search', to: '/activities/puzzles/word-search' },
+    { label: 'Picture puzzle', to: '/activities/puzzles/picture-puzzle' },
   ]
 </script>
 

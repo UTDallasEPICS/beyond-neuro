@@ -9,18 +9,28 @@
   } from '~/data/dual-task/reach-and-reflect'
 
   const LEVEL_SECONDS = [90, 75, 60, 50, 40, 30, 20]
-  const BREAK_SECONDS = 5
+
+  interface ReachLevel {
+    id: number
+    name: string
+    hint: string
+    seconds: number
+  }
+
+  const levels: readonly ReachLevel[] = LEVEL_SECONDS.map((seconds, index) => ({
+    id: index + 1,
+    name: `Level ${index + 1}`,
+    hint: `${seconds} seconds`,
+    seconds,
+  }))
 
   function secondsForLevel(index: number) {
     return LEVEL_SECONDS[index] ?? 20
   }
 
   const running = ref(false)
-  const resting = ref(false)
-  const breakLeft = ref(BREAK_SECONDS)
   const hasPlayed = ref(false)
   const levelIndex = ref(0)
-  const totalNamed = ref(0)
   const secondsLeft = ref(secondsForLevel(0))
   const side = ref<ReachSide>('left')
   const category = ref<(typeof REACH_AND_REFLECT_CATEGORIES)[number]>(
@@ -32,51 +42,26 @@
 
   let sideTimer: ReturnType<typeof setInterval> | undefined
   let clockTimer: ReturnType<typeof setInterval> | undefined
-  let breakTimer: ReturnType<typeof setInterval> | undefined
 
   const btnBase =
     'inline-flex min-h-[72px] w-full items-center justify-center rounded-2xl px-6 py-3 text-2xl font-semibold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4'
   const btnPrimary = `${btnBase} bg-orange-700 text-white hover:bg-orange-800 disabled:cursor-not-allowed disabled:opacity-50`
 
-  const startLabel = computed(() => {
-    if (running.value) return 'Restart from level 1'
-    if (hasPlayed.value) return 'Start over'
-    return `Start level 1 · ${secondsForLevel(0)}s`
-  })
+  const restartLabel = computed(() => `Restart level ${levelIndex.value + 1}`)
 
   function clearTimers() {
     if (sideTimer) clearInterval(sideTimer)
     if (clockTimer) clearInterval(clockTimer)
-    if (breakTimer) clearInterval(breakTimer)
     sideTimer = undefined
     clockTimer = undefined
-    breakTimer = undefined
-  }
-
-  function startBreak(nextIndex: number) {
-    clearTimers()
-    resting.value = true
-    breakLeft.value = BREAK_SECONDS
-    breakTimer = setInterval(() => {
-      breakLeft.value -= 1
-      if (breakLeft.value <= 0) beginLevel(nextIndex)
-    }, 1000)
   }
 
   function finishLevel() {
     const count = named.value.length
     const level = levelIndex.value + 1
-    totalNamed.value += count
-
-    if (level >= LEVEL_SECONDS.length) {
-      running.value = false
-      clearTimers()
-      status.value = `All ${LEVEL_SECONDS.length} levels complete. You named ${totalNamed.value} ${totalNamed.value === 1 ? 'item' : 'items'} in total.`
-      return
-    }
-
-    status.value = `Level ${level} complete. You named ${count} ${count === 1 ? 'item' : 'items'}. Level ${level + 1} starts in ${BREAK_SECONDS} seconds.`
-    startBreak(level)
+    running.value = false
+    clearTimers()
+    status.value = `Level ${level} complete. You named ${count} ${count === 1 ? 'item' : 'items'}. Choose any level to play again.`
   }
 
   function armTimers() {
@@ -92,7 +77,6 @@
   }
 
   function beginLevel(index: number) {
-    resting.value = false
     hasPlayed.value = true
     levelIndex.value = index
     secondsLeft.value = secondsForLevel(index)
@@ -108,14 +92,17 @@
     running.value = true
   }
 
-  function startRound() {
-    totalNamed.value = 0
-    beginLevel(0)
+  function chooseLevel(id: number) {
+    beginLevel(id - 1)
+  }
+
+  function restartLevel() {
+    beginLevel(levelIndex.value)
   }
 
   function addItem() {
     const item = draft.value.trim()
-    if (!item || !running.value || resting.value) return
+    if (!item || !running.value) return
     named.value = [item, ...named.value]
     draft.value = ''
   }
@@ -135,6 +122,35 @@
       category.
     </p>
 
+    <div class="mt-6">
+      <h2 class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">Choose a level</h2>
+      <p class="mt-1 text-lg text-[var(--bn-muted)]">
+        Tap a level to start. You can change this any time.
+      </p>
+      <div
+        class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
+        role="group"
+        aria-label="Difficulty level"
+      >
+        <button
+          v-for="option in levels"
+          :key="option.id"
+          type="button"
+          class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+          :class="
+            hasPlayed && option.id === levelIndex + 1
+              ? 'border-orange-700 bg-[var(--bn-peach)]'
+              : 'border-slate-300 bg-white hover:bg-slate-50'
+          "
+          :aria-pressed="hasPlayed && option.id === levelIndex + 1"
+          @click="chooseLevel(option.id)"
+        >
+          <span class="block text-lg font-bold text-[var(--bn-navy)]">{{ option.name }}</span>
+          <span class="block text-lg text-[var(--bn-muted)]">{{ option.hint }}</span>
+        </button>
+      </div>
+    </div>
+
     <p aria-live="polite" class="mt-4 min-h-[2.5rem] text-xl font-semibold text-green-800">
       {{ status }}
     </p>
@@ -147,7 +163,7 @@
           <div
             class="flex size-24 items-center justify-center rounded-full text-xl font-semibold transition-transform sm:size-28 sm:text-2xl"
             :class="
-              side === 'left' && !resting
+              side === 'left' && running
                 ? 'scale-110 bg-orange-700 text-white'
                 : 'scale-95 bg-slate-300 text-slate-700'
             "
@@ -157,7 +173,7 @@
           <div
             class="flex size-24 items-center justify-center rounded-full text-xl font-semibold transition-transform sm:size-28 sm:text-2xl"
             :class="
-              side === 'right' && !resting
+              side === 'right' && running
                 ? 'scale-110 bg-orange-700 text-white'
                 : 'scale-95 bg-slate-300 text-slate-700'
             "
@@ -166,7 +182,11 @@
           </div>
         </div>
         <p class="mt-4 text-center text-lg font-semibold text-orange-800">
-          {{ resting ? 'Take a breath. Sit back and relax.' : 'Shift weight gently. Sit if you need to.' }}
+          {{
+            running
+              ? 'Shift weight gently. Sit if you need to.'
+              : 'Take a breath. Sit back and relax.'
+          }}
         </p>
       </div>
 
@@ -175,10 +195,7 @@
           Level {{ levelIndex + 1 }} of {{ LEVEL_SECONDS.length }} · Name as many as you can
         </p>
         <h2 class="bn-font-display mt-2 text-3xl font-bold capitalize">{{ category }}</h2>
-        <p v-if="resting" aria-hidden="true" class="mt-3 text-lg font-semibold text-orange-800">
-          Next level in {{ breakLeft }}s
-        </p>
-        <p v-else class="mt-3 text-lg text-[var(--bn-muted)]">
+        <p class="mt-3 text-lg text-[var(--bn-muted)]">
           Time left:
           <strong class="text-[var(--bn-navy)]">{{ secondsLeft }}s</strong>
           · Named:
@@ -190,17 +207,11 @@
           <input
             id="reach-item"
             v-model="draft"
-            :disabled="!running || resting"
-            :placeholder="
-              resting
-                ? 'Next level starting soon'
-                : running
-                  ? 'Type one and press enter'
-                  : 'Press Start to begin'
-            "
+            :disabled="!running"
+            :placeholder="running ? 'Type one and press enter' : 'Choose a level to begin'"
             class="min-h-[72px] w-full min-w-0 rounded-2xl border-2 border-slate-500 bg-white px-4 text-2xl focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:outline-none disabled:bg-slate-100"
           />
-          <button type="submit" :class="btnPrimary" :disabled="!running || resting">Add</button>
+          <button type="submit" :class="btnPrimary" :disabled="!running">Add</button>
         </form>
 
         <ul class="mt-4 flex max-h-32 list-none flex-wrap gap-2 overflow-y-auto p-0">
@@ -213,8 +224,13 @@
           </li>
         </ul>
 
-        <button type="button" :class="[btnPrimary, 'mt-6']" @click="startRound">
-          {{ startLabel }}
+        <button
+          v-if="hasPlayed"
+          type="button"
+          :class="[btnPrimary, 'mt-6']"
+          @click="restartLevel"
+        >
+          {{ restartLabel }}
         </button>
       </div>
     </div>

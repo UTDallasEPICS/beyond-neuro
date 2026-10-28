@@ -43,11 +43,11 @@
       loading.value = false
     }
   }
-
+  // Matching number to shape
   function shapeContains(shape: SVGGeometryElement, label: SVGTextElement, x: number, y: number) {
     const from = label.getCTM()
     const to = shape.getCTM()
-    if (!from || !to) return false
+    if (!from || !to) return false // if cant render
     const p = new DOMPoint(x, y).matrixTransform(from).matrixTransform(to.inverse())
     if (typeof shape.isPointInFill === 'function') return shape.isPointInFill(p)
     const b = shape.getBBox()
@@ -81,7 +81,7 @@
       const n = Number(t.textContent?.trim())
       if (!Number.isInteger(n) || n < 1 || y < 112 || y > 800) return // skip title, key, footer
       t.setAttribute('aria-hidden', 'true')
-
+      // loop goes through every number in the SVG and finds the shape it belongs to.
       for (let i = shapes.length - 1; i >= 0; i--) {
         if (shapeContains(shapes[i]!, t, x, y)) {
           if (!tgt[i]) tgt[i] = n
