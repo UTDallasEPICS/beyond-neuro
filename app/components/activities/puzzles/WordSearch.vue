@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { computed, onMounted, ref } from 'vue'
+  
   interface Cell {
     row: number
     col: number
