@@ -15,6 +15,11 @@
       match: '/activities/reminiscence',
     },
     {
+      label: 'Reality Orientation',
+      href: '/activities/reality-orientation',
+      match: '/activities/reality-orientation',
+    },
+    {
       label: 'Coloring & Visual Art',
       href: '/activities/coloring',
       match: '/activities/coloring',
