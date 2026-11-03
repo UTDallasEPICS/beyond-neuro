@@ -59,7 +59,14 @@
       description: 'Care for a plant day by day, or match each flower to its pot.',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/horticulture',
-      },
+    },
+    {
+      title: 'Reality Orientation',
+      description:
+        'Check today’s date and time, manage your daily plan, or write your plans for the week.',
+      icon: '/activities/icon-activity-green.svg',
+      to: '/activities/reality-orientation',
+    }
   ]
 </script>
 

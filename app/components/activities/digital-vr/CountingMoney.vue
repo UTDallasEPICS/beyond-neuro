@@ -237,9 +237,17 @@
             :key="`${piece.id}-${i}`"
             class="flex flex-col items-center gap-1"
           >
-            <USBill v-if="piece.kind === 'bill'" :dollars="piece.value as BillValue" class="w-52" />
-            <USCoin v-else :cents="piece.value as CoinValue" />
-            <figcaption class="text-base text-gray-700">{{ piece.name }}</figcaption>
+                    <ActivitiesDigitalVrUSBill
+            v-if="piece.kind === 'bill'"
+            :dollars="piece.value as BillValue"
+            class="w-52"
+          />
+
+          <ActivitiesDigitalVrUSCoin
+            v-else
+            :cents="piece.value as CoinValue"
+          />
+          <figcaption class="text-base text-gray-700">{{ piece.name }}</figcaption>
           </figure>
         </div>
 
