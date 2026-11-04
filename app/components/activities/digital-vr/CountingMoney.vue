@@ -180,123 +180,129 @@
 </script>
 
 <template>
-  <section class="px-4 py-12">
-    <div class="mx-auto max-w-4xl">
-      <h2 class="font-serif text-4xl font-bold text-[#231E5A]">Counting Money</h2>
-      <p class="mt-3 text-lg text-gray-600">
-        Practice an everyday skill. Count the bills and coins, then pick the total. Take your time —
-        there is no timer.
+  <div>
+    <!-- Level picker: same style and placement as Mirrored coloring -->
+    <h2 class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">Choose a level</h2>
+    <p class="mt-1 text-lg text-[var(--bn-muted)]">You can change this any time.</p>
+    <div
+      class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
+      role="group"
+      aria-label="Difficulty level"
+    >
+      <button
+        v-for="option in LEVELS"
+        :key="option.id"
+        type="button"
+        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        :class="
+          levelId === option.id
+            ? 'border-orange-700 bg-[var(--bn-peach)]'
+            : 'border-slate-300 bg-white hover:bg-slate-50'
+        "
+        :aria-pressed="levelId === option.id"
+        @click="pickLevel(option.id)"
+      >
+        <span class="block text-lg font-bold text-[var(--bn-navy)]">Level {{ option.id }}</span>
+        <span class="block text-lg text-[var(--bn-muted)]">{{ option.hint }}</span>
+      </button>
+    </div>
+
+    <!-- Activity card: same look as the coloring ActivityCard -->
+    <div
+      class="mt-6 rounded-[20px] border border-[var(--bn-border)] bg-[var(--bn-peach)] p-6 sm:p-10"
+    >
+      <p class="text-lg font-bold tracking-wide text-orange-800 uppercase">
+        Try it now — interactive
       </p>
 
+      <p class="mt-3 text-lg leading-relaxed text-[var(--bn-navy)] sm:text-xl">
+        Count the bills and coins, then pick the total. Take your time — there is no timer.
+      </p>
+
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <p class="text-lg text-[var(--bn-muted)]">Rounds counted: {{ roundsDone }}</p>
+
+        <button
+          type="button"
+          class="ml-auto inline-flex min-h-[56px] items-center justify-center rounded-2xl border-2 border-slate-400 bg-white px-6 py-3 text-lg font-semibold text-[var(--bn-navy)] hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+          @click="newRound"
+        >
+          New money
+        </button>
+      </div>
+
+      <!-- The money: white panel, like the coloring canvas -->
       <div
-        class="mt-6 rounded-2xl border border-t-4 border-gray-200 border-t-[#231E5A] bg-white p-6 sm:p-8"
+        role="group"
+        aria-label="Money to count"
+        class="mt-6 flex min-h-40 flex-wrap items-end justify-center gap-4 rounded-2xl border border-[var(--bn-border)] bg-white p-4 sm:p-6"
       >
-        <div class="flex items-center gap-3">
-          <span class="flex h-11 w-11 items-center justify-center rounded-full bg-[#ECEBFB]">
-            <UIcon name="i-heroicons-banknotes" class="h-5 w-5 text-[#231E5A]" aria-hidden="true" />
-          </span>
-          <span class="text-sm font-semibold tracking-[0.15em] text-[#231E5A] uppercase">
-            Counting Money — Interactive
-          </span>
-        </div>
-
-        <!-- Level (free pick, any time) — same card style as Coloring & Visual Art -->
-        <h3 class="bn-font-display mt-6 text-2xl font-bold text-(--bn-navy)">Choose a level</h3>
-        <p class="mt-1 text-lg text-(--bn-muted)">You can change this any time.</p>
-        <div
-          class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
-          role="group"
-          aria-label="Difficulty level"
+        <figure
+          v-for="(piece, i) in pieces"
+          :key="`${piece.id}-${i}`"
+          class="flex flex-col items-center gap-1"
         >
-          <button
-            v-for="option in LEVELS"
-            :key="option.id"
-            type="button"
-            class="min-h-18 rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-(--bn-navy) focus-visible:ring-offset-4 focus-visible:outline-none"
-            :class="
-              levelId === option.id
-                ? 'border-orange-700 bg-(--bn-peach)'
-                : 'border-slate-300 bg-white hover:bg-slate-50'
-            "
-            :aria-pressed="levelId === option.id"
-            @click="pickLevel(option.id)"
-          >
-            <span class="block text-lg font-bold text-(--bn-navy)">Level {{ option.id }}</span>
-            <span class="block text-lg text-(--bn-muted)">{{ option.hint }}</span>
-          </button>
-        </div>
-
-        <!-- The money -->
-        <div
-          role="group"
-          aria-label="Money to count"
-          class="mt-5 flex min-h-40 flex-wrap items-end gap-4 rounded-2xl border border-[#DCD9F0] bg-[#ECEBFB] p-4"
-        >
-          <figure
-            v-for="(piece, i) in pieces"
-            :key="`${piece.id}-${i}`"
-            class="flex flex-col items-center gap-1"
-          >
-                    <ActivitiesDigitalVrUSBill
+          <ActivitiesDigitalVrUSBill
             v-if="piece.kind === 'bill'"
             :dollars="piece.value as BillValue"
             class="w-52"
           />
-
-          <ActivitiesDigitalVrUSCoin
-            v-else
-            :cents="piece.value as CoinValue"
-          />
-          <figcaption class="text-base text-gray-700">{{ piece.name }}</figcaption>
-          </figure>
-        </div>
-
-        <!-- Answer choices -->
-        <p class="mt-6 text-xl font-semibold text-[#231E5A]">How much money is this?</p>
-        <div class="mt-3 grid gap-3 sm:grid-cols-3">
-          <button
-            v-for="cents in choices"
-            :key="cents"
-            type="button"
-            class="min-h-16 rounded-xl border-2 bg-white text-2xl font-semibold text-gray-900 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#231E5A] disabled:opacity-40"
-            :class="
-              solved && cents === totalCents ? 'border-green-600 bg-green-50' : 'border-[#DCD9F0]'
-            "
-            :disabled="tried.includes(cents) || (solved && cents !== totalCents)"
-            @click="choose(cents)"
-          >
-            {{ money(cents) }}
-          </button>
-        </div>
-
-        <!-- Feedback -->
-        <div aria-live="polite" class="mt-4 space-y-3 text-lg">
-          <p v-if="feedback" :class="solved ? 'font-semibold text-green-800' : 'text-[#231E5A]'">
-            {{ feedback }}
-          </p>
-          <div v-if="showBreakdown && !solved" class="rounded-xl bg-[#F5F1EA] p-4">
-            <p class="font-semibold">Let's count together:</p>
-            <ul class="mt-1">
-              <li v-for="group in breakdown" :key="group.denomination.id">
-                {{ group.count }} × {{ group.denomination.name }} =
-                {{ money(group.count * group.denomination.cents) }}
-              </li>
-            </ul>
-            <p class="mt-1 font-semibold">All together: {{ money(totalCents) }}</p>
-          </div>
-        </div>
-
-        <button
-          v-if="solved"
-          type="button"
-          class="mt-4 min-h-14 rounded-xl bg-[#231E5A] px-6 text-xl font-semibold text-white focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#231E5A]"
-          @click="newRound"
-        >
-          Next round →
-        </button>
-
-        <p class="mt-4 text-gray-600">Rounds counted: {{ roundsDone }}</p>
+          <ActivitiesDigitalVrUSCoin v-else :cents="piece.value as CoinValue" />
+          <figcaption class="text-base text-[var(--bn-muted)]">{{ piece.name }}</figcaption>
+        </figure>
       </div>
+
+      <!-- Answer choices: same card style as the level buttons -->
+      <p class="mt-6 text-xl font-bold text-[var(--bn-navy)]">How much money is this?</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-3" role="group" aria-label="Answer choices">
+        <button
+          v-for="cents in choices"
+          :key="cents"
+          type="button"
+          class="min-h-[72px] rounded-2xl border-2 text-2xl font-bold text-[var(--bn-navy)] transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+          :class="
+            solved && cents === totalCents
+              ? 'border-green-700 bg-green-50'
+              : 'border-slate-300 bg-white hover:bg-slate-50'
+          "
+          :disabled="tried.includes(cents) || (solved && cents !== totalCents)"
+          @click="choose(cents)"
+        >
+          {{ money(cents) }}
+        </button>
+      </div>
+
+      <!-- Feedback -->
+      <div aria-live="polite" class="mt-4 space-y-3 text-lg">
+        <p
+          v-if="feedback"
+          :class="solved ? 'font-semibold text-green-800' : 'text-[var(--bn-navy)]'"
+        >
+          {{ feedback }}
+        </p>
+        <div
+          v-if="showBreakdown && !solved"
+          class="rounded-2xl border border-[var(--bn-border)] bg-white p-4 text-[var(--bn-navy)]"
+        >
+          <p class="font-bold">Let's count together:</p>
+          <ul class="mt-1">
+            <li v-for="group in breakdown" :key="group.denomination.id">
+              {{ group.count }} × {{ group.denomination.name }} =
+              {{ money(group.count * group.denomination.cents) }}
+            </li>
+          </ul>
+          <p class="mt-1 font-bold">All together: {{ money(totalCents) }}</p>
+        </div>
+      </div>
+
+      <button
+        v-if="solved"
+        type="button"
+        class="mt-4 inline-flex min-h-[56px] items-center justify-center rounded-2xl border-2 border-[var(--bn-navy)] bg-[var(--bn-navy)] px-6 py-3 text-lg font-semibold text-white focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        @click="newRound"
+      >
+        Next round →
+      </button>
     </div>
-  </section>
+  </div>
 </template>
