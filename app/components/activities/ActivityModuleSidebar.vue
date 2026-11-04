@@ -120,6 +120,8 @@
         <span class="sr-only">(coming soon)</span>
       </span>
     </nav>
+
+    <InstallAppButton class="mt-auto px-4 pt-8 pb-10 lg:px-6" />
   </aside>
 
   <!-- Phone top nav -->
@@ -127,13 +129,16 @@
     class="bn-font-body flex flex-col gap-3 border-b border-black/10 bg-[var(--bn-sidebar)] px-4 py-4 md:hidden"
     aria-label="Main navigation"
   >
-    <img
-      src="/activities/logo-white.png"
-      alt="Beyond Neuro"
-      class="h-10 w-auto self-start object-contain"
-      width="122"
-      height="40"
-    />
+    <div class="flex items-center justify-between gap-3">
+      <img
+        src="/activities/logo-white.png"
+        alt="Beyond Neuro"
+        class="h-10 w-auto object-contain"
+        width="122"
+        height="40"
+      />
+      <InstallAppButton compact />
+    </div>
     <nav aria-label="Primary">
       <ul class="flex list-none flex-wrap gap-2 p-0">
         <li v-for="link in [home, ...activities]" :key="`m-${link.href}`">

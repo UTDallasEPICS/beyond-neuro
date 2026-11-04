@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#26215c" />
+    <title>You're offline | BeyondNeuro</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff8f0;
+        color: #26217a;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        text-align: center;
+      }
+      main {
+        max-width: 32rem;
+        padding: 2rem;
+      }
+      img {
+        width: 96px;
+        height: 96px;
+        border-radius: 22px;
+      }
+      h1 {
+        font-family: 'Merriweather', Georgia, serif;
+        font-size: 2rem;
+        margin: 1.5rem 0 0.75rem;
+      }
+      p {
+        font-size: 1.25rem;
+        line-height: 1.6;
+        color: #4a4754;
+        margin: 0;
+      }
+      button {
+        margin-top: 2rem;
+        min-height: 56px;
+        padding: 0.75rem 1.75rem;
+        border: 0;
+        border-radius: 1rem;
+        background: #c2410c;
+        color: #fff;
+        font: inherit;
+        font-size: 1.125rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #9a3412;
+      }
+      button:focus-visible {
+        outline: 4px solid #26217a;
+        outline-offset: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/pwa/pwa-192x192.png" alt="" />
+      <h1>You're offline</h1>
+      <p>BeyondNeuro needs an internet connection. Check your Wi-Fi, then try again.</p>
+      <button type="button" onclick="location.reload()">Try again</button>
+    </main>
+  </body>
+</html>
