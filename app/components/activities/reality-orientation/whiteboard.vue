@@ -1,6 +1,6 @@
 <script setup lang="ts">
   //the title shown on the browser tab - screen readers announce it first (WCAG 2.4.2)
-  useHead({ title: 'My Week' })
+  useHead({ title: 'Calendar — BeyondNeuro' })
 
   //everything we need to know about one row (one day) of the week
   type DayColumn = {
@@ -72,11 +72,11 @@
 <template>
   <div>
     <h2 class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">
-      My Week
+      Calendar
     </h2>
 
     <p class="mt-1 text-lg text-[var(--bn-muted)]">
-      Make room for the things you would like to do this week.
+      Write or draw your plans for the week.
     </p>
 
     <section

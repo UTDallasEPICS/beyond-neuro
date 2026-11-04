@@ -4,12 +4,12 @@
   })
 
   useHead({
-    title: 'Reality Orientation | BeyondNeuro',
+    title: 'Reality Orientation — BeyondNeuro',
   })
 
   const tabs = [
-    { label: 'Clock & Today’s Plan', to: '/activities/reality-orientation' },
-    { label: 'My Week', to: '/activities/reality-orientation/whiteboard' },
+    { label: 'Today’s Plan', to: '/activities/reality-orientation' },
+    { label: 'Calendar', to: '/activities/reality-orientation/whiteboard' },
   ]
 </script>
 
