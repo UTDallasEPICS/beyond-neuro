@@ -11,6 +11,7 @@
   const tabs = [
     { label: 'Reaction Time', to: '/activities/digital-vr' },
     { label: 'Counting Money', to: '/activities/digital-vr/counting-money' },
+    { label: 'Rhythm Tiles', to: '/activities/digital-vr/rhythm-tiles' },
   ]
 </script>
 
@@ -18,7 +19,7 @@
   <ActivitiesActivityModulePage
     tag="Cognitive"
     title="Digital & VR Training"
-    subtitle="Practice reaction time and everyday money skills at your own pace."
+    subtitle="Adaptive training for reaction time, rhythm, and everyday money skills, in short daily sessions."
     tabs-label="Digital and VR activities"
     :tabs="tabs"
   >
