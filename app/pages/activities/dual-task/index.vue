@@ -21,7 +21,13 @@
       description: 'Reach and reflect — naming categories while moving',
       icon: '/activities/icon-grid.svg',
       to: '/activities/dual-task/reach-and-reflect',
-    }
+    },
+    {
+      title: 'Clap It Out',
+      description: 'Clap the syllables of words and phrases, from single words to full sentences',
+      icon: '/activities/icon-activity-green.svg',
+      to: '/activities/dual-task/clap-it-out',
+    },
   ] as const
 
   const resources = [
