@@ -22,6 +22,12 @@
       icon: '/activities/icon-grid.svg',
       to: '/activities/dual-task/reach-and-reflect',
     },
+    {
+      title: 'Clap It Out',
+      description: 'Clap the syllables of words and phrases, from single words to full sentences',
+      icon: '/activities/icon-activity-green.svg',
+      to: '/activities/dual-task/clap-it-out',
+    },
   ] as const
 
   const resources = [
@@ -76,7 +82,7 @@
 </script>
 
 <template>
-  <div class="bn-font-body flex min-h-screen flex-col bg-[var(--bn-cream)] md:flex-row">
+  <div class="bn-font-body flex min-h-screen flex-col bg-[var(--bn-cream)] lg:flex-row">
     <ActivitiesActivityModuleSidebar />
 
     <main class="flex-1 overflow-x-hidden">
