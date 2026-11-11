@@ -124,7 +124,7 @@
       el.style.opacity = f && f === targets.value[idx] ? '0' : ''
     })
   }
-  watch([fills, selected, showHints], paint, { deep: true })
+  watch([fills, selected], paint, { deep: true })
 
   // Interaction
 

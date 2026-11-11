@@ -74,7 +74,7 @@
     },
     {
       title: 'Reality Orientation',
-      blurb: 'Today’s date, plans, and a whiteboard',
+      blurb: 'Today’s plan, a weekly calendar, and find the object',
       icon: '/activities/icon-hash.svg',
       to: '/activities/reality-orientation',
     },
@@ -92,13 +92,13 @@
     },
     {
       title: 'Music Therapy & Rhythm',
-      blurb: 'Follow a rhythm or sing along',
+      blurb: 'Follow a rhythm, sing along, or play the drums',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/music',
     },
     {
       title: 'Digital & VR Training',
-      blurb: 'Reaction time, rhythm tiles, counting money',
+      blurb: 'Color matching, rhythm tiles, counting money',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/digital-vr',
     },
@@ -116,7 +116,7 @@
     },
     {
       title: 'Horticultural Therapy',
-      blurb: 'Plant care and garden matching',
+      blurb: 'Plant care, garden matching, and tree trimming',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/horticulture',
     },

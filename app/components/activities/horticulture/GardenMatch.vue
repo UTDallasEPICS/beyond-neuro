@@ -363,12 +363,14 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
                   @keydown.enter.prevent="plant(spot)"
                   @keydown.space.prevent="plant(spot)"
                 >
+                  <!-- eslint-disable vue/no-v-html -- markup is built only from the fixed shapes above, never user input -->
                   <svg
                     class="pointer-events-none h-auto w-full max-w-[84px]"
                     viewBox="0 0 60 80"
                     aria-hidden="true"
                     v-html="spotMarkup(spot)"
                   />
+                  <!-- eslint-enable vue/no-v-html -->
                   <span
                     class="pointer-events-none min-h-7 rounded-md px-2 text-base font-semibold"
                     :class="
@@ -413,6 +415,7 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
             @keydown.enter.prevent="selectFlower(type)"
             @keydown.space.prevent="selectFlower(type)"
           >
+            <!-- eslint-disable vue/no-v-html -- markup is built only from the fixed shapes above, never user input -->
             <svg
               class="pointer-events-none shrink-0"
               width="44"
@@ -421,6 +424,7 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
               aria-hidden="true"
               v-html="flowerSvg[type]"
             />
+            <!-- eslint-enable vue/no-v-html -->
             <span class="text-lg text-[var(--bn-navy)]">{{ flowerLabels[type] }}</span>
           </div>
         </div>

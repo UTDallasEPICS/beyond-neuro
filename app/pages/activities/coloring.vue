@@ -10,6 +10,7 @@
   const tabs = [
     { label: 'Mirrored coloring', to: '/activities/coloring' },
     { label: 'Paint by number', to: '/activities/coloring/paint-by-number' },
+    { label: 'Color mixing', to: '/activities/coloring/color-mixing' },
   ]
 </script>
 

@@ -17,19 +17,21 @@
     {
       title: 'Coloring & Visual Art',
       description:
-        'Calm, untimed coloring — mirrored patterns and paint-by-number pictures from around the world.',
+        'Calm, untimed coloring — mirrored patterns, paint-by-number pictures, and color mixing.',
       icon: '/activities/icon-image.svg',
       to: '/activities/coloring',
     },
     {
       title: 'Puzzles & Games',
-      description: 'A flower matching game and a large-letter word search. No timers, no scores.',
+      description:
+        'A flower matching game, a large-letter word search, and a picture puzzle. No timers, no scores.',
       icon: '/activities/icon-grid.svg',
       to: '/activities/puzzles',
     },
     {
       title: 'Music Therapy & Rhythm',
-      description: 'Follow a calming rhythm, or sing along to a favorite song from your device.',
+      description:
+        'Follow a calming rhythm, sing along to a favorite song from your device, or play the drums.',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/music',
     },
@@ -42,15 +44,14 @@
     },
     {
       title: 'Writing & Calligraphy',
-      description:
-        'Practice handwriting, letter tracing, and typing at your own pace.',
+      description: 'Practice handwriting, letter tracing, and typing at your own pace.',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/writing',
     },
     {
       title: 'Dual-Task Physical Exercise',
       description:
-        'Move your body and think at the same time — walk while counting, or reach while naming things.',
+        'Move your body and think at the same time — walk while counting, reach while naming things, or clap out syllables.',
       icon: '/activities/icon-hash.svg',
       to: '/activities/dual-task',
     },
@@ -64,10 +65,10 @@
     {
       title: 'Reality Orientation',
       description:
-        'Check today’s date and time, manage your daily plan, or write your plans for the week.',
+        'Check today’s date and time, manage your daily plan, write your plans for the week, or find everyday objects in a picture.',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/reality-orientation',
-    }
+    },
   ]
 </script>
 

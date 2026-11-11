@@ -360,6 +360,7 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
         <span v-else>Today starts a fresh streak.</span>
       </p>
       <div class="mt-6 flex h-[220px] items-end justify-center">
+        <!-- eslint-disable vue/no-v-html -- markup is built only from numbers and fixed colours, never user input -->
         <svg
           width="160"
           height="200"
@@ -370,6 +371,7 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
           :class="bump ? 'scale-[1.04]' : 'scale-100'"
           v-html="plantSvg"
         />
+        <!-- eslint-enable vue/no-v-html -->
       </div>
       <p class="mt-5 min-h-[3rem] text-xl leading-relaxed text-[var(--bn-navy)]" aria-live="polite">
         {{ message }}
