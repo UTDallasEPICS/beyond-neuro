@@ -9,7 +9,7 @@
 </script>
 
 <template>
-  <div class="bn-font-body flex min-h-screen flex-col bg-[var(--bn-cream)] md:flex-row">
+  <div class="bn-font-body flex min-h-screen flex-col bg-[var(--bn-cream)] lg:flex-row">
     <ActivitiesActivityModuleSidebar />
 
     <main class="flex-1 overflow-x-hidden">
