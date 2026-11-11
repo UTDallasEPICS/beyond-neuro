@@ -8,8 +8,9 @@
   })
 
   const tabs = [
-    { label: 'Clock & Today’s Plan', to: '/activities/reality-orientation' },
-    { label: 'My Week', to: '/activities/reality-orientation/whiteboard' },
+    { label: 'Today’s Plan', to: '/activities/reality-orientation' },
+    { label: 'Calendar', to: '/activities/reality-orientation/whiteboard' },
+    { label: 'Find the object', to: '/activities/reality-orientation/findObject' },
   ]
 </script>
 
