@@ -4,7 +4,7 @@
   })
 
   useHead({
-    title: 'Reality Orientation | BeyondNeuro',
+    title: 'Reality Orientation — BeyondNeuro',
   })
 
   const tabs = [

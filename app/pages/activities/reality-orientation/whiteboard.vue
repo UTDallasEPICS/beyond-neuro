@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useSeoMeta({
-  title: 'My Week — BeyondNeuro',
+  title: 'Calendar — BeyondNeuro',
   description:
     'Write or draw plans for the current week and print your weekly board.',
 })

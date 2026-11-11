@@ -10,6 +10,7 @@
   const tabs = [
     { label: 'Rhythm exercise', to: '/activities/music' },
     { label: 'Sing along', to: '/activities/music/sing-along' },
+    { label: 'Drums', to: '/activities/music/drums' },
   ]
 </script>
 
