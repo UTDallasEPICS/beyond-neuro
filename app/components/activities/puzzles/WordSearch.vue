@@ -562,18 +562,31 @@
     </div>
 
     <!-- level picker: pick any level, clicking the current level again shuffles its board -->
-    <fieldset class="mt-6">
-      <legend class="text-lg font-semibold text-[var(--bn-navy)]">{{ TEXT.chooseLevel }}</legend>
-      <div class="mt-3 flex flex-wrap gap-3">
+        <fieldset class="mt-6">
+      <legend class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">
+        Choose a level
+      </legend>
+      <p class="mt-1 text-lg text-[var(--bn-muted)]">You can change this any time.</p>
+      <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <button
           v-for="(item, index) in LEVELS"
           :key="item.title"
           type="button"
-          :class="index === currentLevel ? btnPrimary : btnQuiet"
+          class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+          :class="
+            index === currentLevel
+              ? 'border-orange-700 bg-[var(--bn-peach)]'
+              : 'border-slate-300 bg-white hover:bg-slate-50'
+          "
           :aria-pressed="index === currentLevel"
           @click="chooseLevel(index)"
         >
-          {{ TEXT.levelButton(index + 1) }}
+          <span class="block text-lg font-bold text-[var(--bn-navy)]">
+            {{ TEXT.levelButton(index + 1) }}
+          </span>
+          <span class="block text-lg text-[var(--bn-muted)]">
+            {{ item.title }}, {{ item.words.length }} words
+          </span>
         </button>
       </div>
     </fieldset>
