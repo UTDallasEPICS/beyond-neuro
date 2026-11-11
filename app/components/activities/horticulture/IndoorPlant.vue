@@ -210,6 +210,15 @@ function budSvg(bx: number, by: number) {
   )
 }
 
+const plantDescription = computed(() => {
+  const g = growth.value
+  const h = health.value
+  const look = h >= 55 ? 'healthy green' : h >= 30 ? 'yellowing and drooping' : 'brown and wilted'
+  const extra =
+    g >= 85 && h >= 55 ? ' with a pink flower' : g >= 60 && h >= 55 ? ' with a flower bud' : ''
+  return `A potted plant, ${look}${extra}.`
+})
+
 const plantSvg = computed(() => {
   const g = Math.max(0, Math.min(100, growth.value))
   const h = Math.max(0, Math.min(100, health.value))
@@ -355,6 +364,8 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
           width="160"
           height="200"
           viewBox="0 0 160 200"
+          role="img"
+          :aria-label="plantDescription"
           class="overflow-visible transition-transform duration-300"
           :class="bump ? 'scale-[1.04]' : 'scale-100'"
           v-html="plantSvg"

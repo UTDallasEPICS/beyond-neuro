@@ -91,7 +91,9 @@ tasks,
 (value) => {
 try {
 localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
-} catch {}
+} catch {
+// storage can be unavailable (private mode); keep the list in memory
+}
 },
 { deep: true },
 )
@@ -107,7 +109,9 @@ now.value = new Date()
 try {
 const saved = localStorage.getItem(STORAGE_KEY)
 if (saved) tasks.value = JSON.parse(saved)
-} catch {}
+} catch {
+// storage can be unavailable (private mode); keep the list in memory
+}
 })
 
 //clear interval will stop the timer so that it doesn't keep running when you leave the page

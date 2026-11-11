@@ -47,6 +47,10 @@ describe('paint-by-number levels', () => {
   })
 })
 
+// The first mount compiles the component on demand, which can take far longer
+// than the default timeouts on a cold machine.
+vi.setConfig({ testTimeout: 120_000, hookTimeout: 120_000 })
+
 // A tiny stand-in picture: three squares.
 // Square 0 shows number 1, square 1 shows number 2, square 2 has no number (free choice).
 const testSvg = (levelNumber: number) => `

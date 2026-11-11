@@ -21,7 +21,7 @@
       description: 'Reach and reflect — naming categories while moving',
       icon: '/activities/icon-grid.svg',
       to: '/activities/dual-task/reach-and-reflect',
-    }
+    },
   ] as const
 
   const resources = [
@@ -100,7 +100,7 @@
           </div>
 
           <NuxtLink
-            to="/"
+            to="/activities"
             class="inline-flex min-h-12 items-center gap-2 text-lg font-semibold text-orange-800 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:outline-none"
           >
             <img

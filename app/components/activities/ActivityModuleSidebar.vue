@@ -54,10 +54,12 @@
     { label: 'Caregiver Corner', icon: '/activities/icon-users.svg' },
   ]
 
-  const home: NavLink = { label: 'All activities', href: '/', match: '/' }
+  const home: NavLink = { label: 'All activities', href: '/activities', match: '/activities' }
 
   function isCurrent(link: NavLink) {
-    return link.match === '/' ? route.path === '/' : route.path.startsWith(link.match)
+    return link === home
+      ? route.path.replace(/\/$/, '') === home.href
+      : route.path.startsWith(link.match)
   }
 
   const activeClass = 'bg-orange-700 font-bold'
