@@ -1,11 +1,11 @@
 <script setup lang="ts">
-useSeoMeta({
-  title: 'Reaction Color Match — BeyondNeuro',
-  description:
-    'Match colorful tiles across seven levels, from simple choices to two-color sequences.',
-})
+  useSeoMeta({
+    title: 'Reaction Time — BeyondNeuro',
+    description:
+      'Practice attention and reaction time by tapping when the panel turns green.',
+  })
 </script>
 
 <template>
-  <ActivitiesDigitalVrReactionColorMatch />
+  <ActivitiesDigitalVrReactionTime />
 </template>

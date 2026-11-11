@@ -36,7 +36,7 @@
     {
       title: 'Digital & VR Training',
       description:
-        'Practice color matching, rhythm, and counting U.S. money through adaptive interactive activities.',
+        'Practice reaction time, rhythm, and counting U.S. money through adaptive interactive activities.',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/digital-vr',
     },
