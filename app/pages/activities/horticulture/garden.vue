@@ -1,7 +1,7 @@
 <script setup lang="ts">
   useSeoMeta({
     title: 'Garden matching — BeyondNeuro',
-    description: 'Plant each flower in its spot in the garden bed, at your own pace.',
+    description: 'Match each flower to its pot, at your own pace.',
   })
 </script>
 
