@@ -56,7 +56,8 @@
     },
     {
       title: 'Horticultural Therapy',
-      description: 'Care for a plant day by day, or match each flower to its pot.',
+      description:
+        'Care for a plant day by day, plant flowers in a garden bed, or trim a tree into shapes.',
       icon: '/activities/icon-activity-green.svg',
       to: '/activities/horticulture',
     },
