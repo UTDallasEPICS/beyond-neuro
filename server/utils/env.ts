@@ -10,6 +10,10 @@ import { z } from 'zod'
 // plugin runs — so the plugin would never get a chance to report the problem.
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
+  EMAIL_HOST: z.string().min(1).optional(),
+  EMAIL_USER: z.string().min(1).optional(),
+  EMAIL_PASS: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().min(1).optional(),
 })
 
 export type Env = z.infer<typeof envSchema>
