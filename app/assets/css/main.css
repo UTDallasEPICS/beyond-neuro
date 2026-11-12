@@ -1,2 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @import '@nuxt/ui';
+
+:root {
+  --bn-navy: #26217a;
+  --bn-sidebar: #26215c;
+  --bn-cream: #fff8f0;
+  --bn-orange: #f97316;
+  --bn-peach: #fff3eb;
+  --bn-muted: #4a4754;
+  --bn-border: #e2d9d0;
+  --bn-success-bg: #e7f2e5;
+  --bn-success: #5f8f68;
+  --bn-font-display: 'Merriweather', Georgia, serif;
+  --bn-font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.bn-font-display {
+  font-family: var(--bn-font-display);
+}
+
+.bn-font-body {
+  font-family: var(--bn-font-body);
+}

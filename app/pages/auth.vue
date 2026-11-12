@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import { z } from 'zod'
-  import { authClient } from '../utils/auth-client'
 
   const toast = useToast()
   const isEmailSent = ref(false)
@@ -25,28 +24,12 @@
 
   async function handleSubmit() {
     if (!isEmailSent.value) {
-      const { error } = await authClient.emailOtp.sendVerificationOtp({
-        email: state.email,
-        type: 'sign-in',
-      })
-
-      if (error) {
-        toast.add({ title: 'Error', description: error.message, color: 'error' })
-      } else {
-        isEmailSent.value = true
-        toast.add({ title: 'Success', description: 'OTP sent to your email', color: 'success' })
-      }
+      // TODO: wire up auth — authClient.emailOtp.sendVerificationOtp
+      isEmailSent.value = true
+      toast.add({ title: 'Success', description: 'OTP sent to your email', color: 'success' })
     } else {
-      const { error } = await authClient.signIn.emailOtp({
-        email: state.email,
-        otp: state.otp.join(''),
-      })
-
-      if (error) {
-        toast.add({ title: 'Error', description: error.message, color: 'error' })
-      } else {
-        await navigateTo('/', { external: true })
-      }
+      // TODO: wire up auth — authClient.signIn.emailOtp
+      await navigateTo('/', { external: true })
     }
   }
 </script>

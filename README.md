@@ -1,25 +1,21 @@
-# Nuxt Template (Better Auth + Drizzle + SQLite)
+# BeyondNeuro (Nuxt + Drizzle + SQLite)
 
-A modern, production-ready Nuxt 4 template featuring a robust authentication system, ORM integration, and a clean UI foundation.
+Cognitive and creative activities for stroke survivors and older adults. No login is required — every activity is open to anyone.
 
 ## Features
 
 - **Nuxt 4**: The latest and greatest from the Nuxt team.
-- **Better Auth**: Comprehensive authentication with **Email OTP** support.
 - **Drizzle**: Type-safe ORM for interacting with the database.
 - **SQLite**: Lightweight, zero-configuration database, ideal for development and small-to-medium projects.
 - **Nuxt UI v4**: Beautiful, accessible, and customizable UI components built with Tailwind CSS.
-- **Nodemailer**: Pre-configured for sending verification emails via Gmail.
 - **Vitest**: A ready-to-run testing baseline with an example component test. See [Testing](#testing).
 
 ## Stack
 
 - **Framework**: [Nuxt](https://nuxt.com/)
-- **Auth**: [Better Auth](https://www.better-auth.com/)
 - **ORM**: [Drizzle](https://orm.drizzle.team/)
 - **Database**: [SQLite](https://sqlite.org/)
 - **UI Framework**: [Nuxt UI](https://ui.nuxt.com/)
-- **Email**: [Nodemailer](https://nodemailer.com/)
 
 ## Getting Started
 
@@ -51,10 +47,6 @@ cp .env.example .env
 Open `.env` and configure the following:
 
 - `DATABASE_URL`: The SQLite connection string (default: `file:./dev.db`).
-- `BETTER_AUTH_SECRET`: A secure random string for encryption. You can generate one using `openssl rand -hex 32`.
-- `BETTER_AUTH_URL`: The base URL of your application (default: `http://localhost:3000`).
-- `EMAIL_USER`: Your Gmail address (for OTP delivery).
-- `EMAIL_PASS`: Your Gmail App Password. [How to generate an App Password](https://support.google.com/accounts/answer/185833).
 
 ### 4. Database Setup
 
@@ -78,24 +70,10 @@ pnpm dev
 
 Your application will be available at `http://localhost:3000`.
 
-### 6. How to Login
-
-Login requires an email address that already exists in the database.
-
-- **Option A: Use the seeded user**
-  Go to `/auth` and log in with `email@example.com`.
-- **Option B: Use your own email**
-  Update `server/db/seed.ts` with your email, then run `pnpm db:seed` to re-seed.
-
-**To get your OTP:**
-
-- Check your configured email inbox.
-- **Or**, run `pnpm db:studio` to open **Drizzle Studio** and look in the `verification` table.
-
 ## Project Structure
 
 - `app/`: Frontend code (pages, components, assets, composables).
-- `server/`: Backend code (API routes, authentication logic, database utilities).
+- `server/`: Backend code (API routes, database utilities).
 - `server/db/`: Database schema and seed scripts.
 - `drizzle/`: Generated migrations.
 - `public/`: Static assets.
@@ -107,8 +85,6 @@ Login requires an email address that already exists in the database.
 Topic guides live in the [`docs/`](docs/) directory:
 
 - [`docs/testing.md`](docs/testing.md) — Vitest testing guide (from-zero, for beginners).
-- [`docs/better_auth.md`](docs/better_auth.md) — Better Auth setup and usage.
-- [`docs/file_upload_and_serve.md`](docs/file_upload_and_serve.md) — Uploading and serving files.
 - [`docs/mcp.md`](docs/mcp.md) — Recommended MCP servers for AI coding assistants.
 
 ## Testing
