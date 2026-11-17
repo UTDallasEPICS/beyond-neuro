@@ -19,10 +19,9 @@ describe('paint-by-number levels', () => {
     const counts = coloringLevels.map((l) => l.colors.length)
 
     for (let i = 1; i < counts.length; i++) {
-      expect(counts[i - 1]).toBeGreaterThanOrEqual(i - 1)
+      expect(counts[i]).toBeGreaterThanOrEqual(counts[i-1]!)
     }
   })
-
   it.each(coloringLevels)('Level $level has a picture file', (level) => {
     const relativePath = level.file.slice(1)
     const fullPath = resolve(process.cwd(), 'public', relativePath)
@@ -128,5 +127,15 @@ describe('Paint by Number screen', () => {
     expect(status.text()).toBe('0 of 2 shapes colored')
 
     wrapper.unmount()
+  })
+})
+
+describe('extra', () => {
+  it('colors with matching number', async () => {
+    const w = await mountSuspended(PaintByNumberCanvas); await untilLoaded(w)
+    await w.get('[data-idx="0"]').trigger('click')
+    expect(w.get('[aria-live="polite"]').text()).toContain('1 of 2 shapes colored')
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).not.toBe('')
+    w.unmount()
   })
 })
