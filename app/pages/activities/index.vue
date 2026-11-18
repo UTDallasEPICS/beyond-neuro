@@ -12,7 +12,7 @@
       title: 'Reminiscence Therapy',
       description: 'Reconnect with identity through photos, stories, and life-story prompts.',
       icon: '/activities/icon-book-orange.svg',
-      to: '/activities/reminiscence/life-story',
+      to: '/activities/reminiscence',
     },
     {
       title: 'Coloring & Visual Art',
