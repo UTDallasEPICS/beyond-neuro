@@ -126,7 +126,8 @@ describe('Paint by Number screen', () => {
   })
 })
 
-describe('extra', () => {
+describe('Paint by Number canvas', () => {
+
   it('colors with matching number', async () => {
     const w = await mountSuspended(PaintByNumberCanvas); await untilLoaded(w)
     await w.get('[data-idx="0"]').trigger('click')
@@ -191,6 +192,62 @@ describe('extra', () => {
     expect(w.get('[aria-live="polite"]').text()).toBe('Undone.')
     expect(undoBtn.attributes('disabled')).toBeDefined()
 
+    w.unmount()
+  })
+
+  it('clears the picture after confirmation', async () => {
+    const w = await mountSuspended(PaintByNumberCanvas)
+    await untilLoaded(w)
+
+    await w.get('[data-idx="0"]').trigger('click')
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).not.toBe('')
+
+    await w.findAll('button').find((b) => b.text() === 'Clear')!.trigger('click')
+    expect(w.find('[aria-label="Confirm clear"]').exists()).toBe(true)
+
+    await w.findAll('button').find((b) => b.text() === 'Yes, clear')!.trigger('click')
+
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).toBe('')
+    expect(w.get('[aria-live="polite"]').text()).toBe('Fresh page. Ready when you are.')
+    expect(w.findAll('button').find((b) => b.text() === 'Undo')!.attributes('disabled')).toBeDefined()
+    expect(w.find('[aria-label="Confirm clear"]').exists()).toBe(false)
+
+    w.unmount()
+  })
+
+  it('shows completion message and next-level button when all numbered shapes are colored', async () => {
+    const w = await mountSuspended(PaintByNumberCanvas)
+    await untilLoaded(w)
+
+    // Shape 0 needs Red (1), shape 1 needs Green (2).
+    await w.get('[data-idx="0"]').trigger('click')
+    await w.get('[aria-label="Color number 2, Green"]').trigger('click')
+    await w.get('[data-idx="1"]').trigger('click')
+
+    expect(w.get('[aria-live="polite"]').text()).toContain('All done')
+    expect(
+      w.findAll('button').some((b) => b.text() === 'Want a little more? Try Level 2')
+    ).toBe(true)
+
+    w.unmount()
+  })
+
+  it('resets colors after a level', async () => {
+    const w = await mountSuspended(PaintByNumberCanvas)
+    await untilLoaded(w)
+
+    await w.get('[data-idx="0"]').trigger('click')
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).not.toBe('')
+
+    await w.findAll('[aria-label="Difficulty level"] button')[1]!.trigger('click')
+    await untilLoaded(w) // wait for Level 2 SVG to load and clears fills
+
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).toBe('')
+    expect(w.get('[aria-live="polite"]').text()).toBe('0 of 2 shapes colored')
+    expect(w.get('[aria-label="Color number 1, Yellow"]').attributes('aria-pressed')).toBe('true')
+    expect(w.findAll('[aria-label="Color palette"] button')).toHaveLength(
+      coloringLevels[1]!.colors.length
+    )
     w.unmount()
   })
 })
