@@ -1,195 +1,212 @@
-<script setup lang="ts">
-  const { data: users, pending, error } = await useFetch('/api/users')
+﻿<script setup lang="ts">
+  import { authClient } from '~/utils/auth-client'
 
-  const selectedFile = ref<File | null>(null)
-  const imagePreview = ref<string>('')
+  definePageMeta({ layout: 'activity', middleware: 'auth' })
+  useHead({ title: 'Account dashboard | BeyondNeuro' })
+
+  const usersKey = 'account-dashboard-users'
+  const { data: users, pending, error, refresh } = await useFetch('/api/users', { key: usersKey })
+  const selectedFile = shallowRef<File | null>(null)
+  const imagePreview = ref('')
   const isUploading = ref(false)
   const isModalOpen = ref(false)
+  const isSigningOut = ref(false)
+  const uploadError = ref('')
+  const logoutError = ref('')
+  const status = ref('')
+  const buttonClass =
+    'min-h-12 rounded-xl bg-[var(--bn-navy)] px-4 text-white hover:bg-[var(--bn-sidebar)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bn-navy)]'
+  const focusClass =
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bn-navy)]'
 
   async function logout() {
-    // TODO: wire up auth — authClient.signOut()
-    await navigateTo('/auth', { external: true })
+    logoutError.value = ''
+    isSigningOut.value = true
+    try {
+      const { error } = await authClient.signOut()
+      if (error) {
+        logoutError.value = 'We could not sign you out. Please try again.'
+        return
+      }
+      clearNuxtData(usersKey)
+      await navigateTo('/auth', { replace: true })
+    } catch {
+      logoutError.value = 'We could not sign you out. Please try again.'
+    } finally {
+      isSigningOut.value = false
+    }
   }
 
-  function getImageLink(user: { image: boolean; id: string }) {
-    return user.image ? 'api/users/' + user.id + '/profile' : undefined
+  function clearFile() {
+    if (imagePreview.value) URL.revokeObjectURL(imagePreview.value)
+    imagePreview.value = ''
+    selectedFile.value = null
+    uploadError.value = ''
   }
 
   function handleImageUpload(event: Event) {
-    const target = event.target as HTMLInputElement
-    const files = target.files as FileList
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
 
-    if (!files || files.length === 0) return
-
-    const file = files[0]
-
-    if (!file?.type.startsWith('image/')) {
+    clearFile()
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      uploadError.value = 'Choose an image file.'
+      input.value = ''
       return
     }
 
     selectedFile.value = file
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      imagePreview.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
+    imagePreview.value = URL.createObjectURL(file)
   }
 
-  const openModal = () => {
-    isModalOpen.value = true
-  }
-
-  const closeModal = () => {
-    isModalOpen.value = false
-  }
+  watch(isModalOpen, (open) => {
+    if (!open) clearFile()
+  })
+  onBeforeUnmount(clearFile)
 
   async function updatePfp() {
-    if (!selectedFile.value) return
+    if (!selectedFile.value || isUploading.value) return
 
     isUploading.value = true
-
+    uploadError.value = ''
+    status.value = ''
     try {
       const formData = new FormData()
       formData.append('file', selectedFile.value)
+      await $fetch('/api/users/upload', { method: 'POST', body: formData })
 
-      await $fetch('/api/users/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      // Refresh users data to show updated profile picture
-      await refreshNuxtData()
-
-      // Reset state
-      selectedFile.value = null
-      imagePreview.value = ''
+      // The image URL is otherwise unchanged when an existing photo is replaced.
+      photoVersion.value++
+      await refresh()
       isModalOpen.value = false
-    } catch (error) {
-      console.error('Upload failed:', error)
+      status.value = 'Profile picture updated.'
+    } catch {
+      uploadError.value = 'We could not upload your picture. Please try again.'
     } finally {
       isUploading.value = false
     }
   }
+
+  const photoVersion = ref(0)
+
+  function getImageLink(user: { image: boolean; id: string }) {
+    return user.image
+      ? `/api/users/${encodeURIComponent(user.id)}/profile?v=${photoVersion.value}`
+      : undefined
+  }
 </script>
 
 <template>
-  <UContainer class="py-10">
-    <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Dashboard</h1>
-        <p class="mt-1 text-gray-500 dark:text-gray-400">
-          Manage your application users and settings.
-        </p>
-      </div>
-      <div class="flex justify-between gap-4 md:items-center">
-        <UModal :open="isModalOpen">
-          <UButton
-            color="success"
-            variant="soft"
-            @click="openModal"
-            icon="i-heroicons-arrow-up-on-square-20-solid"
-            label="Update Profile Picture"
-          />
+  <main class="bn-font-body mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-8">
+    <NuxtLink
+      to="/"
+      :class="[
+        focusClass,
+        'inline-flex min-h-12 items-center rounded-lg px-2 font-semibold underline',
+      ]"
+    >
+      Back to BeyondNeuro
+    </NuxtLink>
 
-          <template #content>
-            <div class="m-12 space-y-4">
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                Update Profile Picture
-              </h3>
+    <header class="flex flex-wrap items-center justify-between gap-4">
+      <h1 class="bn-font-display text-3xl font-bold">Account dashboard</h1>
+      <div class="flex flex-wrap gap-3">
+        <UModal
+          v-model:open="isModalOpen"
+          title="Update profile picture"
+          :dismissible="!isUploading"
+        >
+          <UButton :class="buttonClass">Update profile picture</UButton>
 
-              <div v-if="imagePreview" class="flex justify-center">
-                <UAvatar :src="imagePreview" size="3xl" />
-              </div>
-
-              <div>
+          <template #body>
+            <form class="space-y-4 text-[var(--bn-navy)]" @submit.prevent="updatePfp">
+              <UAvatar
+                v-if="imagePreview"
+                :src="imagePreview"
+                alt="Selected profile picture preview"
+                size="3xl"
+              />
+              <div class="space-y-2">
+                <label for="profile-file" class="block font-semibold">Choose an image</label>
                 <input
+                  id="profile-file"
                   type="file"
                   accept="image/*"
-                  class="file:bg-primary-50 file:text-brand4 hover:file:bg-primary-100 block w-full cursor-pointer text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:px-4 file:py-2 file:text-sm file:font-semibold"
+                  :disabled="isUploading"
+                  :aria-describedby="uploadError ? 'profile-error' : undefined"
+                  :class="[
+                    focusClass,
+                    'w-full rounded-lg file:me-3 file:min-h-12 file:rounded-lg file:bg-[var(--bn-peach)] file:px-3 file:font-semibold',
+                  ]"
                   @change="handleImageUpload"
                 />
               </div>
-
-              <div class="flex justify-end gap-2">
-                <UButton variant="soft" @click="closeModal"> Cancel </UButton>
+              <p id="profile-error" role="alert" class="font-medium text-red-800">
+                {{ uploadError }}
+              </p>
+              <p role="status" class="sr-only">
+                {{ isUploading ? 'Uploading profile picture' : '' }}
+              </p>
+              <div class="flex flex-wrap justify-end gap-3">
+                <button
+                  type="button"
+                  :disabled="isUploading"
+                  :class="[focusClass, 'min-h-12 rounded-xl px-4 font-semibold underline']"
+                  @click="isModalOpen = false"
+                >
+                  Cancel
+                </button>
                 <UButton
-                  color="success"
+                  type="submit"
                   :loading="isUploading"
                   :disabled="!selectedFile"
-                  @click="updatePfp"
+                  :class="buttonClass"
                 >
-                  Upload
+                  Upload picture
                 </UButton>
               </div>
-            </div>
+            </form>
           </template>
         </UModal>
-        <UButton
-          color="error"
-          variant="soft"
-          icon="i-heroicons-arrow-right-on-rectangle-20-solid"
-          label="Logout"
-          @click="logout"
-        />
+        <UButton :loading="isSigningOut" :class="buttonClass" @click="logout">Sign out</UButton>
       </div>
-    </div>
+    </header>
 
-    <UCard class="w-full">
-      <template #header>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-users-20-solid" class="h-5 w-5 text-gray-500" />
-            <h2 class="text-base leading-7 font-semibold text-gray-900 dark:text-white">
-              Registered Users
-            </h2>
-          </div>
-          <UBadge variant="subtle" color="primary" size="md">{{ users?.length || 0 }} Users</UBadge>
-        </div>
+    <p role="alert" class="font-medium text-red-800">{{ logoutError }}</p>
+    <p role="status">{{ status }}</p>
+
+    <section
+      aria-labelledby="registered-users"
+      class="rounded-3xl border border-[var(--bn-border)] bg-white p-5 sm:p-8"
+    >
+      <h2 id="registered-users" class="bn-font-display text-xl font-bold">Registered users</h2>
+      <p v-if="pending" role="status" class="mt-3">Loading users…</p>
+      <p v-else-if="error" role="alert" class="mt-3 font-medium text-red-800">
+        We could not load the user list. Reload the page to try again.
+      </p>
+      <p v-else-if="!users?.length" class="mt-3">No users found.</p>
+      <template v-else>
+        <p class="mt-2 text-[var(--bn-muted)]">{{ users.length }} registered</p>
+        <ul class="mt-4 divide-y divide-[var(--bn-border)]">
+          <li
+            v-for="user in users"
+            :key="user.id"
+            class="flex flex-wrap items-center justify-between gap-3 py-4"
+          >
+            <div class="flex min-w-0 items-center gap-3">
+              <UAvatar :src="getImageLink(user)" aria-hidden="true" size="md" />
+              <div class="min-w-0 wrap-anywhere">
+                <p class="font-semibold">{{ user.name }}</p>
+                <p class="text-[var(--bn-muted)]">{{ user.email }}</p>
+              </div>
+            </div>
+            <span class="rounded-full bg-[var(--bn-peach)] px-3 py-1 text-sm font-semibold">
+              {{ user.emailVerified ? 'Email verified' : 'Email verification pending' }}
+            </span>
+          </li>
+        </ul>
       </template>
-
-      <div v-if="pending" class="space-y-4">
-        <div v-for="i in 3" :key="i" class="flex items-center justify-between py-2">
-          <div class="flex w-full items-center gap-3">
-            <USkeleton class="h-10 w-10 rounded-full" />
-            <div class="w-full max-w-[200px] space-y-2">
-              <USkeleton class="h-4 w-full" />
-              <USkeleton class="h-3 w-2/3" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div v-else-if="error">
-        <UAlert
-          icon="i-heroicons-exclamation-triangle-20-solid"
-          color="error"
-          variant="subtle"
-          title="Error loading users"
-          :description="error.message"
-        />
-      </div>
-
-      <div v-else class="divide-y divide-gray-200 dark:divide-gray-800">
-        <div
-          v-for="user in users"
-          :key="user.id"
-          class="flex items-center justify-between py-4 first:pt-0 last:pb-0"
-        >
-          <div class="flex items-center gap-3">
-            <UAvatar :src="getImageLink(user)" :alt="user.name" size="md" :as="{ img: 'img' }" />
-            <div>
-              <p class="font-medium text-gray-900 dark:text-white">{{ user.name }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</p>
-            </div>
-          </div>
-          <UBadge :color="user.emailVerified ? 'success' : 'warning'" variant="subtle" size="sm">
-            {{ user.emailVerified ? 'Verified' : 'Pending' }}
-          </UBadge>
-        </div>
-
-        <div v-if="users?.length === 0" class="py-8 text-center text-gray-500">No users found.</div>
-      </div>
-    </UCard>
-  </UContainer>
+    </section>
+  </main>
 </template>

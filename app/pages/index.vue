@@ -192,6 +192,7 @@
                 Start
               </NuxtLink>
             </li>
+            <li class="min-w-0"><AccountNav /></li>
           </ul>
         </nav>
 
