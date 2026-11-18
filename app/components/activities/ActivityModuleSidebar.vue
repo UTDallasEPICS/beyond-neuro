@@ -11,7 +11,7 @@
   const activities: NavLink[] = [
     {
       label: 'Reminiscence Therapy',
-      href: '/activities/reminiscence/life-story',
+      href: '/activities/reminiscence',
       match: '/activities/reminiscence',
     },
     {

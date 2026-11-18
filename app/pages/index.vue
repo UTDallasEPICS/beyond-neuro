@@ -70,7 +70,7 @@
       title: 'Reminiscence Therapy',
       blurb: 'Photos, stories, and a journal',
       icon: '/activities/icon-book-orange.svg',
-      to: '/activities/reminiscence/life-story',
+      to: '/activities/reminiscence',
     },
     {
       title: 'Reality Orientation',

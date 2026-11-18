@@ -6,22 +6,10 @@
   useHead({
     title: 'Coloring & Visual Art | BeyondNeuro',
   })
-
-  const tabs = [
-    { label: 'Mirrored coloring', to: '/activities/coloring' },
-    { label: 'Paint by number', to: '/activities/coloring/paint-by-number' },
-    { label: 'Color mixing', to: '/activities/coloring/color-mixing' },
-  ]
 </script>
 
 <template>
-  <ActivitiesActivityModulePage
-    tag="Visual Art"
-    title="Coloring & Visual Art"
-    subtitle="Calm, untimed coloring. Take as long as you like — there are no wrong answers."
-    tabs-label="Coloring activities"
-    :tabs="tabs"
-  >
+  <ActivitiesActivityModulePage slug="coloring">
     <NuxtPage />
   </ActivitiesActivityModulePage>
 </template>
