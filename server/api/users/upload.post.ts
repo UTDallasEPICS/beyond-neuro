@@ -41,14 +41,19 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Image already exists.' })
   }
 
-  await fs.promises.writeFile(filePath, file.data, { flag: 'wx' })
+  await fs.writeFile(filePath, file.data, (err) => {
+    if (err) throw err
+  })
 
   const imagePath = path.join('users', currentUser.id, 'images', randomImageId)
 
-  await db
+  const [updatedUser] = await db
     .update(user)
     .set({ image: imagePath, updatedAt: new Date() })
     .where(eq(user.id, currentUser.id))
+    .returning()
+
+  console.log(updatedUser)
 
   setResponseStatus(event, 201)
 

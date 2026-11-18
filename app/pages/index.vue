@@ -70,7 +70,7 @@
       title: 'Reminiscence Therapy',
       blurb: 'Photos, stories, and a journal',
       icon: '/activities/icon-book-orange.svg',
-      to: '/activities/reminiscence',
+      to: '/activities/reminiscence/life-story',
     },
     {
       title: 'Reality Orientation',
@@ -190,17 +190,6 @@
                 ]"
               >
                 Start
-              </NuxtLink>
-            </li>
-            <li>
-              <NuxtLink
-                to="/auth"
-                :class="[
-                  focusRing,
-                  'inline-flex min-h-14 items-center rounded-full px-5 hover:bg-[var(--bn-peach)] focus-visible:ring-[var(--bn-navy)]',
-                ]"
-              >
-                Login
               </NuxtLink>
             </li>
           </ul>

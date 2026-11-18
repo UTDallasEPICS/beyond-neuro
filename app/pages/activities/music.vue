@@ -6,10 +6,22 @@
   useHead({
     title: 'Music Therapy & Rhythm | BeyondNeuro',
   })
+
+  const tabs = [
+    { label: 'Rhythm exercise', to: '/activities/music' },
+    { label: 'Sing along', to: '/activities/music/sing-along' },
+    { label: 'Drums', to: '/activities/music/drums' },
+  ]
 </script>
 
 <template>
-  <ActivitiesActivityModulePage slug="music">
+  <ActivitiesActivityModulePage
+    tag="Sensory-Motor"
+    title="Music Therapy & Rhythm"
+    subtitle="Rhythm and music that activate memory. Go at whatever pace feels good."
+    tabs-label="Music activities"
+    :tabs="tabs"
+  >
     <NuxtPage />
   </ActivitiesActivityModulePage>
 </template>
