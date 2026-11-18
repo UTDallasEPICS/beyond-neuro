@@ -78,6 +78,9 @@
 
     <main class="flex-1 overflow-x-hidden">
       <div class="mx-auto w-full max-w-[900px] px-4 py-8 sm:px-8 lg:px-[60px] lg:py-[60px]">
+        <div class="mb-4 flex justify-end">
+          <AccountNav />
+        </div>
         <header class="max-w-[800px]">
           <h1
             class="bn-font-display text-3xl font-bold text-[var(--bn-navy)] sm:text-[40px] sm:leading-[48px]"

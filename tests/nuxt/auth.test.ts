@@ -43,10 +43,7 @@ describe('email code sign-in', () => {
       await flushPromises()
 
       expect(signIn).toHaveBeenCalledWith({ email: 'test@example.com', otp: '012345' })
-      expect(wrapper.get('h1').text()).toBe('You’re signed in')
-      expect(document.activeElement).toBe(wrapper.get('h1').element)
-      expect(wrapper.get('a[href="/"]').text()).toBe('Back to BeyondNeuro')
-      expect(navigateTo).not.toHaveBeenCalled()
+      expect(navigateTo).toHaveBeenCalledWith('/activities', { replace: true, external: true })
     } finally {
       wrapper.unmount()
     }

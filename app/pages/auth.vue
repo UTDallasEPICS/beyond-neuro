@@ -9,13 +9,11 @@
   const email = ref('')
   const otp = ref('')
   const codeRequested = ref(false)
-  const signedIn = ref(false)
   const busy = ref(false)
   const errorMessage = ref('')
   const fieldInvalid = ref(false)
   const emailInput = useTemplateRef<HTMLInputElement>('emailInput')
   const codeInput = useTemplateRef<HTMLInputElement>('codeInput')
-  const heading = useTemplateRef<HTMLHeadingElement>('heading')
 
   const inputClass =
     'min-h-14 w-full rounded-xl border border-[var(--bn-muted)] bg-white px-4 text-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bn-navy)]'
@@ -81,9 +79,7 @@
         return
       }
 
-      signedIn.value = true
-      await nextTick()
-      heading.value?.focus()
+      await navigateTo('/activities', { replace: true, external: true })
     } catch {
       errorMessage.value = 'Something went wrong. Please try again.'
     } finally {
@@ -108,37 +104,16 @@
       aria-labelledby="sign-in-heading"
       class="rounded-3xl border border-[var(--bn-border)] bg-white p-5 sm:p-8"
     >
-      <h1
-        id="sign-in-heading"
-        ref="heading"
-        tabindex="-1"
-        class="bn-font-display text-3xl font-bold"
-      >
-        {{ signedIn ? 'You’re signed in' : 'Sign in' }}
-      </h1>
-      <p v-if="!signedIn && !codeRequested" class="mt-3 text-lg text-[var(--bn-muted)]">
+      <h1 id="sign-in-heading" class="bn-font-display text-3xl font-bold">Sign in</h1>
+      <p v-if="!codeRequested" class="mt-3 text-lg text-[var(--bn-muted)]">
         Enter the email address for your BeyondNeuro account to request a sign-in code.
       </p>
-      <p
-        v-else-if="!signedIn"
-        id="code-help"
-        class="mt-3 text-lg break-words text-[var(--bn-muted)]"
-      >
+      <p v-else id="code-help" class="mt-3 text-lg break-words text-[var(--bn-muted)]">
         If an account exists for {{ email }}, a sign-in code will be sent to that address. You can
         paste the six-digit code below.
       </p>
 
-      <NuxtLink
-        v-if="signedIn"
-        to="/auth-tracker"
-        :class="[
-          focusClass,
-          'mt-4 inline-flex min-h-12 items-center rounded-lg px-2 font-semibold underline',
-        ]"
-      >
-        Open account dashboard
-      </NuxtLink>
-      <form v-else novalidate class="mt-6 space-y-3" @submit.prevent="handleSubmit">
+      <form novalidate class="mt-6 space-y-3" @submit.prevent="handleSubmit">
         <div v-if="!codeRequested" class="space-y-2">
           <label for="auth-email" class="block text-lg font-semibold">Email address</label>
           <input
