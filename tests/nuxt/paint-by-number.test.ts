@@ -46,10 +46,6 @@ describe('paint-by-number levels', () => {
   })
 })
 
-// The first mount compiles the component on demand, which can take far longer
-// than the default timeouts on a cold machine.
-vi.setConfig({ testTimeout: 120_000, hookTimeout: 120_000 })
-
 // A tiny stand-in picture: three squares.
 // Square 0 shows number 1, square 1 shows number 2, square 2 has no number (free choice).
 const testSvg = (levelNumber: number) => `
@@ -136,6 +132,65 @@ describe('extra', () => {
     await w.get('[data-idx="0"]').trigger('click')
     expect(w.get('[aria-live="polite"]').text()).toContain('1 of 2 shapes colored')
     expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).not.toBe('')
+    w.unmount()
+  })
+
+  it('warns when the color does not match the shape number', async () => {
+    const w = await mountSuspended(PaintByNumberCanvas)
+    await untilLoaded(w)
+
+    // Shape 0 needs color 1 (Red). Pick color 2 (Green) first.
+    await w.get('[aria-label="Color number 2, Green"]').trigger('click')
+    await w.get('[data-idx="0"]').trigger('click')
+
+    const shape = w.get('[data-idx="0"]').element as SVGElement
+    expect(shape.style.fill).toBe('#43A047') // Green was applied
+    expect(shape.style.fill).not.toBe('#E53935') // not the matching Red
+
+    // Progress stays at 0, the live message explains the correct number instead.
+    const status = w.get('[aria-live="polite"]').text()
+    expect(status).toContain('number 1')
+    expect(status).toContain('Red')
+    expect(status).not.toContain('1 of 2 shapes colored')
+
+    w.unmount()
+  })
+
+  it('lets you color a free-choice shape with any color', async () => {
+    const w = await mountSuspended(PaintByNumberCanvas)
+    await untilLoaded(w)
+
+    // Shape 2 has no number in the stand-in SVG, so any palette color is fine.
+    await w.get('[data-idx="2"]').trigger('click')
+
+    const shape = w.get('[data-idx="2"]').element as SVGElement
+    expect(shape.style.fill).toBe('#E53935') // Level 1 starts on Red
+
+    const status = w.get('[aria-live="polite"]').text()
+    expect(status).toMatch(/Nice!|Lovely color!|Great job!|Beautiful!/)
+    expect(status).toContain('0 of 2 shapes colored') 
+    expect(status).not.toContain('This shape shows number')
+
+    w.unmount()
+  })
+
+  it('undoes the last color', async () => {
+    const w = await mountSuspended(PaintByNumberCanvas)
+    await untilLoaded(w)
+
+    const undoBtn = w.findAll('button').find((b) => b.text() === 'Undo')!
+    expect(undoBtn.attributes('disabled')).toBeDefined()
+
+    await w.get('[data-idx="0"]').trigger('click')
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).toBe('#E53935')
+    expect(undoBtn.attributes('disabled')).toBeUndefined()
+
+    await undoBtn.trigger('click')
+
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).toBe('')
+    expect(w.get('[aria-live="polite"]').text()).toBe('Undone.')
+    expect(undoBtn.attributes('disabled')).toBeDefined()
+
     w.unmount()
   })
 })
