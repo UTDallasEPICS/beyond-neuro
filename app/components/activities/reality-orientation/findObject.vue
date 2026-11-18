@@ -383,7 +383,11 @@
   }
 
   // sets up a freshly shuffled room for whatever level we pass in
+  const { isLevelLocked } = useLevelAccess()
+  const nextLocked = computed(() => !isLastLevel.value && isLevelLocked(currentLevel.value + 1))
+
   function startLevel(levelIndex: number) {
+    if (isLevelLocked(levelIndex)) return
     currentLevel.value = levelIndex
     round.value = buildRound(LEVELS[levelIndex]!, true)
     foundIds.value = []
@@ -402,6 +406,7 @@
 
   // lets the player jump straight to any level instead of going in order
   function chooseLevel(levelIndex: number) {
+    if (isLevelLocked(levelIndex)) return
     if (foundIds.value.length > 0 && !isWon.value && !window.confirm(TEXT.switchConfirm)) return
     startLevel(levelIndex)
     // set after startLevel because startLevel clears the message
@@ -476,13 +481,14 @@
           v-for="(item, index) in LEVELS"
           :key="index"
           type="button"
-          class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+          class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
           :class="
             index === currentLevel
               ? 'border-orange-700 bg-[var(--bn-peach)]'
               : 'border-slate-300 bg-white hover:bg-slate-50'
           "
           :aria-pressed="index === currentLevel"
+          :disabled="isLevelLocked(index)"
           @click="chooseLevel(index)"
         >
           <span class="block text-lg font-bold text-[var(--bn-navy)]">
@@ -491,8 +497,10 @@
           <span class="block text-lg text-[var(--bn-muted)]">
             {{ TEXT.levelHint(item.title, item.findCount) }}
           </span>
+          <ActivitiesLevelLockIcon v-if="isLevelLocked(index)" class="mt-1" />
         </button>
       </div>
+      <ActivitiesLevelLockNotice :total="LEVELS.length" />
     </fieldset>
 
     <p class="mt-3 text-lg leading-relaxed text-[var(--bn-navy)] sm:text-xl">
@@ -703,7 +711,7 @@
           {{ TEXT.hint }}
         </button>
         <button type="button" :class="btnQuiet" @click="newRoom">{{ TEXT.newRoom }}</button>
-        <button v-if="isWon && !isLastLevel" type="button" :class="btnPrimary" @click="nextLevel">
+        <button v-if="isWon && !isLastLevel && !nextLocked" type="button" :class="btnPrimary" @click="nextLevel">
           {{ TEXT.nextLevel }}
         </button>
         <button v-if="isWon && isLastLevel" type="button" :class="btnPrimary" @click="playAgain">

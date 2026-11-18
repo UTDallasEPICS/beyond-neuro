@@ -76,7 +76,10 @@
     }, 1000)
   }
 
+  const { isLevelLocked } = useLevelAccess()
+
   function beginLevel(index: number) {
+    if (isLevelLocked(index)) return
     hasPlayed.value = true
     levelIndex.value = index
     secondsLeft.value = secondsForLevel(index)
@@ -136,19 +139,22 @@
           v-for="option in levels"
           :key="option.id"
           type="button"
-          class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+          class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
           :class="
             hasPlayed && option.id === levelIndex + 1
               ? 'border-orange-700 bg-[var(--bn-peach)]'
               : 'border-slate-300 bg-white hover:bg-slate-50'
           "
           :aria-pressed="hasPlayed && option.id === levelIndex + 1"
+          :disabled="isLevelLocked(option.id - 1)"
           @click="chooseLevel(option.id)"
         >
           <span class="block text-lg font-bold text-[var(--bn-navy)]">{{ option.name }}</span>
           <span class="block text-lg text-[var(--bn-muted)]">{{ option.hint }}</span>
+          <ActivitiesLevelLockIcon v-if="isLevelLocked(option.id - 1)" class="mt-1" />
         </button>
       </div>
+      <ActivitiesLevelLockNotice :total="levels.length" />
     </div>
 
     <p aria-live="polite" class="mt-4 min-h-[2.5rem] text-xl font-semibold text-green-800">

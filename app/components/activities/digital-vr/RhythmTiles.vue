@@ -245,7 +245,11 @@
     () => lastMissAt.value !== null && clock.value - lastMissAt.value < 350
   )
 
-  const nextLevel = computed(() => (levelId.value < 7 ? ((levelId.value + 1) as LevelId) : null))
+  const { isLevelLocked } = useLevelAccess()
+  // levelId is 1-based, so it is also the 0-based position of the level after it.
+  const nextLevel = computed(() =>
+    levelId.value < 7 && !isLevelLocked(levelId.value) ? ((levelId.value + 1) as LevelId) : null
+  )
   const easierLevel = computed(() => (levelId.value > 1 ? ((levelId.value - 1) as LevelId) : null))
 
   const resultTitle = computed(() => {
@@ -322,6 +326,7 @@
   }
 
   function pickLevel(next: LevelId) {
+    if (isLevelLocked(next - 1)) return
     if (next !== levelId.value) failStreak.value = 0
     levelId.value = next
     phase.value = 'setup'
@@ -603,7 +608,8 @@
       const saved = localStorage.getItem(PROGRESS_KEY)
       if (saved) {
         progress.value = JSON.parse(saved) as Progress
-        levelId.value = progress.value.lastLevel
+        const last = progress.value.lastLevel
+        levelId.value = isLevelLocked(last - 1) ? 1 : last
       }
     } catch {
       progress.value = { lastLevel: 1, best: {} }
@@ -650,7 +656,7 @@
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="levelId === option.id"
-        :disabled="isActive"
+        :disabled="isActive || isLevelLocked(option.id - 1)"
         @click="pickLevel(option.id)"
       >
         <span class="block text-lg font-bold text-[var(--bn-navy)]">Level {{ option.id }}</span>
@@ -661,8 +667,10 @@
         >
           ✓ Best {{ progress.best[option.id] }}%
         </span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(option.id - 1)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="LEVELS.length" />
 
     <!-- Activity card -->
     <div

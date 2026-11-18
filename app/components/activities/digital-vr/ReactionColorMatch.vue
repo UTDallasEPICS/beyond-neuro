@@ -171,7 +171,10 @@ function reset() {
   targetShownAt = null
 }
 
+const { isLevelLocked } = useLevelAccess()
+
 function chooseLevel(id: number) {
+  if (isLevelLocked(id - 1)) return
   reset()
   selectedLevel.value = id
 }
@@ -328,7 +331,7 @@ async function resume() {
 }
 
 function nextLevel() {
-  if (selectedLevel.value >= levels.length) return
+  if (selectedLevel.value >= levels.length || isLevelLocked(selectedLevel.value)) return
 
   chooseLevel(selectedLevel.value + 1)
   start()
@@ -368,13 +371,14 @@ onBeforeUnmount(() => {
         v-for="option in levels"
         :key="option.id"
         type="button"
-        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           selectedLevel === option.id
             ? 'border-orange-700 bg-[var(--bn-peach)]'
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="selectedLevel === option.id"
+        :disabled="isLevelLocked(option.id - 1)"
         @click="chooseLevel(option.id)"
       >
         <span class="block text-lg font-bold text-[var(--bn-navy)]">
@@ -388,8 +392,10 @@ onBeforeUnmount(() => {
         <span class="mt-1 block text-base text-[var(--bn-muted)]">
           {{ option.shuffle ? 'Changing positions' : 'Fixed positions' }}
         </span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(option.id - 1)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="levels.length" />
 
     <section
       class="mt-6 rounded-[20px] border border-[var(--bn-border)] bg-[var(--bn-peach)] p-6 sm:p-10"
@@ -685,7 +691,7 @@ onBeforeUnmount(() => {
           </button>
 
           <button
-            v-if="selectedLevel < levels.length"
+            v-if="selectedLevel < levels.length && !isLevelLocked(selectedLevel)"
             type="button"
             :class="quietClass"
             @click="nextLevel"

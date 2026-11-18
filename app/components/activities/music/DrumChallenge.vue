@@ -331,7 +331,14 @@
   }
 
   const summary = computed(() => summaryLines(props.mode, stats.value))
-  const suggestNext = computed(() => stats.value.correct >= SUGGEST_NEXT_AT && drum.value.level < 7)
+  const { isLevelLocked } = useLevelAccess()
+  // drum.level is 1-based, so it is also the 0-based position of the level after it.
+  const suggestNext = computed(
+    () =>
+      stats.value.correct >= SUGGEST_NEXT_AT &&
+      drum.value.level < 7 &&
+      !isLevelLocked(drum.value.level)
+  )
   const answerHint = computed(() => {
     if (props.mode === 'copy' && phase.value === 'answer' && copyLength.value > 1) {
       return `${copyProgress.value} of ${copyLength.value}`

@@ -52,7 +52,10 @@
     return `${n} ${n === 1 ? 'part' : 'parts'}`
   }
 
+  const { isLevelLocked } = useLevelAccess()
+
   function pickDrum(id: DrumId) {
+    if (isLevelLocked(findDrum(id)!.level - 1)) return
     stopAll()
     drumId.value = id
     lit.value = []
@@ -225,7 +228,7 @@
     try {
       const last = localStorage.getItem(LAST_DRUM_KEY)
       const found = last ? findDrum(last) : undefined
-      if (found) drumId.value = found.id
+      if (found && !isLevelLocked(found.level - 1)) drumId.value = found.id
     } catch {
       // Storage unavailable: start on level 1.
     }
@@ -256,7 +259,7 @@
         v-for="d in DRUM_KIT"
         :key="d.id"
         type="button"
-        class="flex flex-col rounded-2xl border-2 p-3 text-left transition-colors focus-visible:ring-4 focus-visible:ring-(--bn-navy) focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="flex flex-col rounded-2xl border-2 p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-(--bn-navy) focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           drumId === d.id
             ? 'border-orange-700 bg-(--bn-peach)'
@@ -264,14 +267,17 @@
         "
         :aria-pressed="drumId === d.id"
         :data-testid="`drum-${d.id}`"
+        :disabled="isLevelLocked(d.level - 1)"
         @click="pickDrum(d.id)"
       >
         <DrumPicture :drum-id="d.id" class="pointer-events-none" />
         <span class="mt-2 block text-lg font-bold text-(--bn-navy)">Level {{ d.level }}</span>
         <span class="block text-lg text-(--bn-navy)">{{ d.name }}</span>
         <span class="block text-base text-(--bn-muted)">{{ partsLabel(d.areas.length) }}</span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(d.level - 1)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="DRUM_KIT.length" />
 
     <!-- Activity card -->
     <div class="mt-6 rounded-[20px] border border-(--bn-border) bg-(--bn-peach) p-6 sm:p-10">

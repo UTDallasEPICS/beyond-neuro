@@ -117,7 +117,10 @@ const levelHints = ['Simple words', 'Everyday words', 'Longer words', 'Short sen
     nextTick(focusInput)
   }
 
+  const { isLevelLocked } = useLevelAccess()
+
   function chooseLevel(index: number) {
+    if (isLevelLocked(index)) return
     selectedLevel.value = index
     reset()
   }
@@ -170,13 +173,14 @@ const levelHints = ['Simple words', 'Everyday words', 'Longer words', 'Short sen
         v-for="(level, index) in levels"
         :key="level.id"
         type="button"
-        class="flex h-full min-w-0 flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="flex h-full min-w-0 flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           selectedLevel === index
             ? 'border-orange-700 bg-[var(--bn-peach)]'
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="selectedLevel === index"
+        :disabled="isLevelLocked(index)"
         @click="chooseLevel(index)"
       >
         <span class="block text-lg leading-7 font-bold text-[var(--bn-navy)]">
@@ -186,8 +190,10 @@ const levelHints = ['Simple words', 'Everyday words', 'Longer words', 'Short sen
         <span class="mt-1 block text-lg leading-7 text-[var(--bn-muted)]">
           {{ levelHints[index] }}
         </span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(index)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="levels.length" />
 
     <ActivityCard
       class="mt-6"

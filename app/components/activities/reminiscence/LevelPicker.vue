@@ -11,6 +11,8 @@
   }>()
 
   const emit = defineEmits<{ select: [level: ReminiscenceLevel] }>()
+
+  const { isLevelLocked } = useLevelAccess()
 </script>
 
 <template>
@@ -20,7 +22,8 @@
         <button
           type="button"
           :aria-pressed="current === l.level"
-          class="flex min-h-[72px] w-full flex-col items-start justify-center rounded-2xl border-2 px-5 py-3 text-left focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+          :disabled="isLevelLocked(l.level - 1)"
+          class="flex min-h-[72px] w-full flex-col items-start justify-center rounded-2xl border-2 px-5 py-3 text-left disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
           :class="
             current === l.level
               ? 'border-orange-700 bg-[var(--bn-peach)]'
@@ -30,8 +33,10 @@
         >
           <span class="text-xl font-bold">Level {{ l.level }} · {{ l.label }}</span>
           <span class="text-lg text-[var(--bn-muted)]">{{ l.description }}</span>
+          <ActivitiesLevelLockIcon v-if="isLevelLocked(l.level - 1)" class="mt-1" />
         </button>
       </li>
     </ul>
+    <ActivitiesLevelLockNotice :total="levels.length" />
   </nav>
 </template>

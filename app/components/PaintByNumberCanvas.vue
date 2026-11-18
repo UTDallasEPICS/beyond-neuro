@@ -179,8 +179,10 @@
     message.value = 'Fresh page. Ready when you are.'
   }
 
+  const { isLevelLocked } = useLevelAccess()
+
   function chooseLevel(index: number) {
-    if (index === levelIndex.value) return
+    if (index === levelIndex.value || isLevelLocked(index)) return
     levelIndex.value = index
   }
 
@@ -210,13 +212,14 @@
         v-for="(option, index) in coloringLevels"
         :key="option.level"
         type="button"
-        class="flex min-h-[72px] flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="flex min-h-[72px] flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           index === levelIndex
             ? 'border-orange-700 bg-[var(--bn-peach)]'
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="index === levelIndex"
+        :disabled="isLevelLocked(index)"
         @click="chooseLevel(index)"
       >
         <span class="block text-lg font-bold text-[var(--bn-navy)]">Level {{ option.level }}</span>
@@ -224,8 +227,10 @@
         <span class="mt-1 block text-base text-[var(--bn-muted)]">
           {{ option.colors.length }} colors
         </span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(index)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="coloringLevels.length" />
 
     <ActivityCard
       class="mt-6"
@@ -313,7 +318,7 @@
           Download printable page to color!
         </a>
         <button
-          v-if="isComplete && levelIndex < coloringLevels.length - 1"
+          v-if="isComplete && levelIndex < coloringLevels.length - 1 && !isLevelLocked(levelIndex + 1)"
           type="button"
           :class="btn"
           @click="chooseLevel(levelIndex + 1)"

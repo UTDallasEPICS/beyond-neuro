@@ -139,7 +139,11 @@ function shuffle<T>(items: T[]): T[] {
   return copy
 }
 
+const { isLevelLocked } = useLevelAccess()
+const nextLocked = computed(() => !isLastLevel.value && isLevelLocked(levelIndex.value + 1))
+
 function startLevel(index: number) {
+  if (isLevelLocked(index)) return
   levelIndex.value = index
   const types = (levels[index] ?? levels[0]!).types
   spots.value = shuffle(types).map((type) => ({ type, planted: false }))
@@ -444,6 +448,7 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
           {{ mistakes === 0 ? 'No mistakes.' : `${mistakes} mistake${mistakes === 1 ? '' : 's'}.` }}
         </p>
         <button
+          v-if="!nextLocked"
           type="button"
           class="mt-5"
           :class="btnPrimary"
@@ -451,6 +456,7 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
         >
           {{ isLastLevel ? 'Play again' : 'Next level' }}
         </button>
+        <ActivitiesLevelLockNotice v-else :total="levels.length" class="text-left" />
       </div>
     </div>
 

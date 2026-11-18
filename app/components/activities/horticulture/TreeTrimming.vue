@@ -436,7 +436,11 @@
     }
   }
 
+  const { isLevelLocked } = useLevelAccess()
+  const nextLocked = computed(() => !isLastLevel.value && isLevelLocked(levelIndex.value + 1))
+
   function startLevel(index: number) {
+    if (isLevelLocked(index)) return
     mode.value = 'levels'
     levelIndex.value = index
     shapePaths = level.value.shape.map((d) => new Path2D(d))
@@ -855,12 +859,14 @@
         </p>
         <div class="mt-5 grid gap-2">
           <button
+            v-if="!nextLocked"
             type="button"
             :class="btnPrimary"
             @click="startLevel(isLastLevel ? 0 : levelIndex + 1)"
           >
             {{ isLastLevel ? 'Play again' : 'Next level' }}
           </button>
+          <ActivitiesLevelLockNotice v-else :total="TRIM_LEVELS.length" class="mt-0 text-left" />
           <button type="button" :class="btnQuiet" @click="startLevel(levelIndex)">Try again</button>
           <button type="button" :class="btnQuiet" @click="savePicture">Save picture</button>
         </div>

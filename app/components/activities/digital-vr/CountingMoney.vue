@@ -158,7 +158,10 @@
     showBreakdown.value = false
   }
 
+  const { isLevelLocked } = useLevelAccess()
+
   function pickLevel(next: LevelId) {
+    if (isLevelLocked(next - 1)) return
     levelId.value = next
     newRound()
   }
@@ -193,19 +196,22 @@
         v-for="option in LEVELS"
         :key="option.id"
         type="button"
-        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           levelId === option.id
             ? 'border-orange-700 bg-[var(--bn-peach)]'
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="levelId === option.id"
+        :disabled="isLevelLocked(option.id - 1)"
         @click="pickLevel(option.id)"
       >
         <span class="block text-lg font-bold text-[var(--bn-navy)]">Level {{ option.id }}</span>
         <span class="block text-lg text-[var(--bn-muted)]">{{ option.hint }}</span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(option.id - 1)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="LEVELS.length" />
 
     <!-- Activity card: same look as the coloring ActivityCard -->
     <div

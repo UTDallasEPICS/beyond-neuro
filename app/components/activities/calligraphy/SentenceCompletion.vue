@@ -283,7 +283,10 @@ function clearExercise() {
   feedback.value = ''
 }
 
+const { isLevelLocked } = useLevelAccess()
+
 function chooseLevel(index: number) {
+  if (isLevelLocked(index)) return
   selectedLevel.value = index
   exerciseIndex.value = 0
   clearExercise()
@@ -334,13 +337,14 @@ function nextExercise() {
         v-for="(option, index) in levels"
         :key="option.id"
         type="button"
-        class="flex h-full min-w-0 flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="flex h-full min-w-0 flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           selectedLevel === index
             ? 'border-orange-700 bg-[var(--bn-peach)]'
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="selectedLevel === index"
+        :disabled="isLevelLocked(index)"
         @click="chooseLevel(index)"
       >
         <span class="block text-lg leading-7 font-bold text-[var(--bn-navy)]">
@@ -350,8 +354,10 @@ function nextExercise() {
         <span class="mt-1 block text-lg leading-7 text-[var(--bn-muted)]">
           {{ option.hint }}
         </span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(index)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="levels.length" />
 
     <section
       class="mt-6 rounded-[20px] border border-[var(--bn-border)] bg-[var(--bn-peach)] p-6 sm:p-10"

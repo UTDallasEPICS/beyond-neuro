@@ -136,7 +136,10 @@
     if (!boardsByLevel.value[id]) boardsByLevel.value[id] = mixedUpBoard(size * size)
   }
 
+  const { isLevelLocked } = useLevelAccess()
+
   function chooseLevel(id: PuzzleLevelId) {
+    if (isLevelLocked(id - 1)) return
     activeLevelId.value = id
     setUpLevel(id)
     selectedSpot.value = null
@@ -293,19 +296,22 @@
         v-for="option in levels"
         :key="option.id"
         type="button"
-        class="min-h-18 rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-(--bn-navy) focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="min-h-18 rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-(--bn-navy) focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           option.id === activeLevelId
             ? 'border-orange-700 bg-(--bn-peach)'
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="option.id === activeLevelId"
+        :disabled="isLevelLocked(option.id - 1)"
         @click="chooseLevel(option.id)"
       >
         <span class="block text-lg font-bold text-(--bn-navy)">{{ option.name }}</span>
         <span class="block text-lg text-(--bn-muted)">{{ option.hint }}</span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(option.id - 1)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="levels.length" />
 
     <section
       aria-labelledby="picture-puzzle-title"
@@ -420,7 +426,12 @@
         <p class="bn-font-display text-2xl font-bold text-(--bn-navy)">You finished the puzzle!</p>
         <p class="mt-2 text-lg text-(--bn-navy)">{{ level.picture.alt }}.</p>
         <div class="mt-4 flex flex-wrap justify-center gap-4">
-          <button v-if="activeLevelId < 7" type="button" :class="btnQuiet" @click="goToNextLevel">
+          <button
+            v-if="activeLevelId < 7 && !isLevelLocked(activeLevelId)"
+            type="button"
+            :class="btnQuiet"
+            @click="goToNextLevel"
+          >
             Try level {{ activeLevelId + 1 }}
           </button>
           <button type="button" :class="btnQuiet" @click="mixUpAgain">Play this one again</button>

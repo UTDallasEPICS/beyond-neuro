@@ -107,7 +107,11 @@ const message = ref("Set today's water and light, then advance.")
 const bump = ref(false)
 const levelComplete = ref(false)
 
+const { isLevelLocked } = useLevelAccess()
+const nextLocked = computed(() => !isLastLevel.value && isLevelLocked(levelIndex.value + 1))
+
 function startLevel(index: number) {
+  if (isLevelLocked(index)) return
   levelIndex.value = index
   const next = levels[index] ?? levels[0]!
   day.value = 1
@@ -427,7 +431,7 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
           Advance the day
         </button>
         <button
-          v-else
+          v-else-if="!nextLocked"
           type="button"
           :class="btnPrimary"
           @click="startLevel(isLastLevel ? 0 : levelIndex + 1)"
@@ -436,6 +440,7 @@ const btnQuiet = `${btnBase} border-2 border-slate-400 bg-white text-[var(--bn-n
         </button>
         <button type="button" :class="btnQuiet" @click="resetRitual">Reset</button>
       </div>
+      <ActivitiesLevelLockNotice v-if="levelComplete && nextLocked" :total="levels.length" />
 
       <div class="mt-6">
         <div class="h-2 overflow-hidden rounded-full bg-[var(--bn-peach)]">

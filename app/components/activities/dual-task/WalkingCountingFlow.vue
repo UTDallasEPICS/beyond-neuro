@@ -42,7 +42,10 @@
     step.value = 'level'
   }
 
+  const { isLevelLocked } = useLevelAccess()
+
   function chooseLevel(l: CountLevel) {
+    if (isLevelLocked(l.level - 1)) return
     level.value = l
     start()
   }
@@ -114,13 +117,16 @@
           v-for="l in countLevels"
           :key="l.level"
           type="button"
-          :class="[secondary, 'flex-col gap-1 py-4']"
+          :class="[secondary, 'flex-col gap-1 py-4 disabled:cursor-not-allowed disabled:opacity-50']"
+          :disabled="isLevelLocked(l.level - 1)"
           @click="chooseLevel(l)"
         >
           <span>{{ l.label }}</span>
           <span class="text-base font-normal">{{ l.description }}</span>
+          <ActivitiesLevelLockIcon v-if="isLevelLocked(l.level - 1)" />
         </button>
       </div>
+      <ActivitiesLevelLockNotice :total="countLevels.length" />
       <button
         type="button"
         class="mt-6 min-h-[72px] text-lg font-semibold text-orange-800"

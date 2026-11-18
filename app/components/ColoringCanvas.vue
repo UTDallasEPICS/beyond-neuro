@@ -86,7 +86,10 @@
     cellsByLevel.value[activeLevelId.value] = makeGrid(level.value.size)
   }
 
+  const { isLevelLocked } = useLevelAccess()
+
   function chooseLevel(id: MirrorLevelId) {
+    if (isLevelLocked(id - 1)) return
     activeLevelId.value = id
     isPainting.value = false
     // Lower levels have fewer colors, so keep the current color only if it exists here.
@@ -124,19 +127,22 @@
         v-for="option in levels"
         :key="option.id"
         type="button"
-        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           option.id === activeLevelId
             ? 'border-orange-700 bg-[var(--bn-peach)]'
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="option.id === activeLevelId"
+        :disabled="isLevelLocked(option.id - 1)"
         @click="chooseLevel(option.id)"
       >
         <span class="block text-lg font-bold text-[var(--bn-navy)]">{{ option.name }}</span>
         <span class="block text-lg text-[var(--bn-muted)]">{{ option.hint }}</span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(option.id - 1)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="levels.length" />
 
     <ActivityCard
       class="mt-6"

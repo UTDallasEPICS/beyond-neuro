@@ -67,11 +67,17 @@
   function showHint() {
     hintStep.value = Math.min(hintStep.value + 1, 2)
   }
+  const { isLevelLocked } = useLevelAccess()
+  const nextLocked = computed(
+    () => levelIndex.value < COLOR_MIX_LEVELS.length - 1 && isLevelLocked(levelIndex.value + 1)
+  )
+
   function goToLevel(i: number) {
+    if (isLevelLocked(i)) return
     levelIndex.value = i
   }
   function nextLevel() {
-    if (levelIndex.value < COLOR_MIX_LEVELS.length - 1) levelIndex.value++
+    if (levelIndex.value < COLOR_MIX_LEVELS.length - 1) goToLevel(levelIndex.value + 1)
   }
 
   watch(levelIndex, () => {
@@ -108,19 +114,22 @@
         <li v-for="(lv, i) in COLOR_MIX_LEVELS" :key="lv.level">
           <button
             type="button"
-            class="min-h-[72px] rounded-2xl border-2 px-5 text-[1.5rem] font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#241f5c]"
+            class="min-h-[72px] rounded-2xl border-2 px-5 text-[1.5rem] font-bold disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#241f5c]"
             :class="
               i === levelIndex
                 ? 'border-[#f97316] bg-[#f97316] text-white'
                 : 'border-[#f2c9a8] bg-[#fdeee2] text-[#241f5c]'
             "
             :aria-current="i === levelIndex ? 'step' : undefined"
+            :disabled="isLevelLocked(i)"
             @click="goToLevel(i)"
           >
             {{ lv.level }}
+            <ActivitiesLevelLockIcon v-if="isLevelLocked(i)" class="ml-1 align-middle" />
           </button>
         </li>
       </ul>
+      <ActivitiesLevelLockNotice :total="COLOR_MIX_LEVELS.length" />
     </nav>
 
     <p class="mb-4 text-[1.375rem] font-semibold">{{ level.level }} · {{ level.skill }}</p>
@@ -178,7 +187,7 @@
       </p>
       <div class="mt-4 flex flex-wrap justify-center gap-3">
         <button
-          v-if="levelIndex < COLOR_MIX_LEVELS.length - 1"
+          v-if="levelIndex < COLOR_MIX_LEVELS.length - 1 && !nextLocked"
           type="button"
           class="min-h-[72px] rounded-2xl bg-[#f97316] px-6 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#241f5c]"
           @click="nextLevel"

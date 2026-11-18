@@ -22,11 +22,14 @@
     playDemo,
   } = useClapItOut()
 
+  const { isLevelLocked } = useLevelAccess()
+  // level is 1-based, so it is also the 0-based position of the level after it.
   const nextLevel = computed<Level | null>(() =>
-    level.value < 7 ? ((level.value + 1) as Level) : null
+    level.value < 7 && !isLevelLocked(level.value) ? ((level.value + 1) as Level) : null
   )
 
   function chooseLevel(l: Level) {
+    if (isLevelLocked(l - 1)) return
     start(l)
     step.value = 'play'
   }
@@ -65,7 +68,8 @@
           v-for="l in LEVELS"
           :key="l"
           type="button"
-          :class="[secondary, 'flex-col gap-1 py-4']"
+          :class="[secondary, 'flex-col gap-1 py-4 disabled:cursor-not-allowed']"
+          :disabled="isLevelLocked(l - 1)"
           @click="chooseLevel(l)"
         >
           <span>Level {{ l }}</span>
@@ -73,8 +77,10 @@
           <span class="text-base font-normal text-[var(--bn-muted)]">
             {{ LEVEL_INFO[l].example }}
           </span>
+          <ActivitiesLevelLockIcon v-if="isLevelLocked(l - 1)" />
         </button>
       </div>
+      <ActivitiesLevelLockNotice :total="LEVELS.length" />
     </div>
 
     <!-- Step 2 clap the words -->
@@ -152,6 +158,7 @@
         You clapped out {{ wordsSeen }} {{ wordsSeen === 1 ? 'word' : 'words' }}. Saying and
         clapping together trains your brain and body at the same time.
       </p>
+      <ActivitiesLevelLockNotice v-if="level < 7 && isLevelLocked(level)" :total="LEVELS.length" />
       <div class="mt-8 flex flex-col gap-4">
         <button v-if="nextLevel" type="button" :class="primary" @click="chooseLevel(nextLevel)">
           Next level

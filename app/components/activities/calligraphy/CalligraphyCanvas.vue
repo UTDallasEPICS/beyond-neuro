@@ -164,7 +164,10 @@ function clearCanvas() {
   ctx.clearRect(0, 0, rect.width, rect.height)
 }
 
+const { isLevelLocked } = useLevelAccess()
+
 function selectLevel(level: Level) {
+  if (isLevelLocked(level - 1)) return
   selectedLevel.value = level
   selectedItem.value = 0
   clearCanvas()
@@ -204,13 +207,14 @@ onBeforeUnmount(() => {
         v-for="level in levels"
         :key="level.level"
         type="button"
-        class="flex h-full min-w-0 flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+        class="flex h-full min-w-0 flex-col items-start justify-start rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
         :class="
           selectedLevel === level.level
             ? 'border-orange-700 bg-[var(--bn-peach)]'
             : 'border-slate-300 bg-white hover:bg-slate-50'
         "
         :aria-pressed="selectedLevel === level.level"
+        :disabled="isLevelLocked(level.level - 1)"
         @click="selectLevel(level.level)"
       >
         <span class="block text-lg leading-7 font-bold text-[var(--bn-navy)]">
@@ -220,8 +224,10 @@ onBeforeUnmount(() => {
         <span class="mt-1 block text-lg leading-7 text-[var(--bn-muted)]">
           {{ level.label }}
         </span>
+        <ActivitiesLevelLockIcon v-if="isLevelLocked(level.level - 1)" class="mt-1" />
       </button>
     </div>
+    <ActivitiesLevelLockNotice :total="levels.length" />
 
     <ActivityCard
       class="mt-6"

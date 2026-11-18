@@ -36,7 +36,12 @@
 
   const round = computed(() => rounds.value[roundIndex.value])
   const rule = computed(() => photoLevels[level.value])
-  const upcomingLevel = computed(() => nextLevel(level.value))
+  const { isLevelLocked } = useLevelAccess()
+  // Only suggest the next level when it is open to this person.
+  const upcomingLevel = computed(() => {
+    const next = nextLevel(level.value)
+    return next && !isLevelLocked(next - 1) ? next : null
+  })
   const targetKeys = computed(
     () => new Set(round.value?.tiles.filter((t) => t.isTarget).map((t) => t.key) ?? [])
   )
@@ -94,6 +99,7 @@
   }
 
   function startLevel(l: ReminiscenceLevel) {
+    if (isLevelLocked(l - 1)) return
     feedback.value = ''
     level.value = l
     rounds.value = buildLevel(l)

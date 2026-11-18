@@ -487,7 +487,11 @@
   }
 
   // sets up a freshly shuffled board for whatever level we pass in
+  const { isLevelLocked } = useLevelAccess()
+  const nextLocked = computed(() => !isLastLevel.value && isLevelLocked(currentLevel.value + 1))
+
   function startLevel(levelIndex: number) {
+    if (isLevelLocked(levelIndex)) return
     currentLevel.value = levelIndex
  
     puzzle.value = shufflePuzzle(LEVELS[levelIndex]!)
@@ -503,6 +507,7 @@
 
   // lets the player jump straight to any level instead of going in order
   function chooseLevel(levelIndex: number) {
+    if (isLevelLocked(levelIndex)) return
   
     if (foundWords.value.length > 0 && !isWon.value && !window.confirm(TEXT.switchConfirm)) return
     startLevel(levelIndex)
@@ -572,13 +577,14 @@
           v-for="(item, index) in LEVELS"
           :key="item.title"
           type="button"
-          class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
+          class="min-h-[72px] rounded-2xl border-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-[var(--bn-navy)] focus-visible:ring-offset-4 focus-visible:outline-none"
           :class="
             index === currentLevel
               ? 'border-orange-700 bg-[var(--bn-peach)]'
               : 'border-slate-300 bg-white hover:bg-slate-50'
           "
           :aria-pressed="index === currentLevel"
+          :disabled="isLevelLocked(index)"
           @click="chooseLevel(index)"
         >
           <span class="block text-lg font-bold text-[var(--bn-navy)]">
@@ -587,8 +593,10 @@
           <span class="block text-lg text-[var(--bn-muted)]">
             {{ item.title }}, {{ item.words.length }} words
           </span>
+          <ActivitiesLevelLockIcon v-if="isLevelLocked(index)" class="mt-1" />
         </button>
       </div>
+      <ActivitiesLevelLockNotice :total="LEVELS.length" />
     </fieldset>
 
     <p class="mt-3 text-lg leading-relaxed text-[var(--bn-navy)] sm:text-xl">
@@ -668,7 +676,7 @@
 
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <button type="button" :class="btnQuiet" @click="startOver">{{ TEXT.startOver }}</button>
-        <button v-if="isWon && !isLastLevel" type="button" :class="btnPrimary" @click="nextLevel">
+        <button v-if="isWon && !isLastLevel && !nextLocked" type="button" :class="btnPrimary" @click="nextLevel">
           {{ TEXT.nextLevel }}
         </button>
         <button v-if="isWon && isLastLevel" type="button" :class="btnPrimary" @click="playAgain">

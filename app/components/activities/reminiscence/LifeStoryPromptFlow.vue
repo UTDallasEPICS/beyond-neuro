@@ -35,7 +35,12 @@
   const total = computed(() => levelPrompts.value.length)
   const prompt = computed(() => levelPrompts.value[index.value]) // keeping track of the current prompt based on the index
   const levelInfo = computed(() => lifeStoryLevels[level.value])
-  const upcomingLevel = computed(() => nextLevel(level.value))
+  const { isLevelLocked } = useLevelAccess()
+  // Only suggest the next level when it is open to this person.
+  const upcomingLevel = computed(() => {
+    const next = nextLevel(level.value)
+    return next && !isLevelLocked(next - 1) ? next : null
+  })
 
   const pickerLevels = REMINISCENCE_LEVELS.map((l) => ({ level: l, ...lifeStoryLevels[l] }))
 
@@ -105,6 +110,7 @@
   }
 
   function startLevel(l: ReminiscenceLevel) {
+    if (isLevelLocked(l - 1)) return
     feedback.value = ''
     confirmingStartOver.value = false
     level.value = l
