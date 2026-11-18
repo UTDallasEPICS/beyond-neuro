@@ -112,50 +112,6 @@
 
         <hr class="my-12 border-0 border-t border-[var(--bn-border)]" />
 
-        <!-- Printable Resources -->
-        <section aria-labelledby="resources-title">
-          <div class="flex flex-col gap-2">
-            <h2
-              id="resources-title"
-              class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]"
-            >
-              Printable Resources
-            </h2>
-            <p class="text-lg leading-normal text-[var(--bn-muted)]">
-              Download resources specifically styled for physical printouts and caregiver-guided
-              sessions.
-            </p>
-          </div>
-          <div class="mt-6 grid gap-4 md:grid-cols-3">
-            <div
-              v-for="resource in mod.resources"
-              :key="resource.title"
-              class="flex items-center gap-4 rounded-xl border border-[var(--bn-border)] bg-white p-[18px]"
-            >
-              <div
-                class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--bn-success-bg)]"
-              >
-                <img :src="resource.icon" alt="" class="size-5" width="20" height="20" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="text-lg font-bold text-[var(--bn-navy)]">{{ resource.title }}</p>
-                <p class="text-lg leading-normal text-[var(--bn-muted)]">
-                  {{ resource.description }}
-                </p>
-              </div>
-              <img
-                src="/activities/icon-download.svg"
-                alt=""
-                class="size-5 shrink-0"
-                width="20"
-                height="20"
-              />
-            </div>
-          </div>
-        </section>
-
-        <hr class="my-12 border-0 border-t border-[var(--bn-border)]" />
-
         <!-- Related Modules -->
         <section aria-labelledby="related-title" class="pb-8">
           <h2 id="related-title" class="bn-font-display text-2xl font-bold text-[var(--bn-navy)]">
