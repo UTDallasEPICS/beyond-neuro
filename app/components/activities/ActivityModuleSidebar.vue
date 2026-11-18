@@ -48,11 +48,7 @@
     },
   ]
 
-  const comingSoon = [
-    { label: 'My Progress', icon: '/activities/icon-progress.svg' },
-    { label: 'Learn', icon: '/activities/icon-learn.svg' },
-    { label: 'Caregiver Corner', icon: '/activities/icon-users.svg' },
-  ]
+  const comingSoon = [{ label: 'My Progress', icon: '/activities/icon-progress.svg' }]
 
   const home: NavLink = { label: 'All activities', href: '/activities', match: '/activities' }
 
