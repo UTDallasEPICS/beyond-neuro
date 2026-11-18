@@ -67,6 +67,18 @@ export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, { fields: [account.userId], references: [user.id] }),
 }))
 
+export const singAlongSong = sqliteTable('sing_along_song', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  title: text('title').notNull(),
+  slug: text('slug').notNull().unique(), 
+  level: integer('level').notNull(),
+  audioPath: text('audioPath').notNull(), 
+  lyricsPath: text('lyricsPath').notNull(), 
+  sortOrder: integer('sortOrder').notNull().default(0),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+})
+
 export const selectUserSchema = createSelectSchema(user)
 export const insertUserSchema = createInsertSchema(user)
 export const selectSessionSchema = createSelectSchema(session)
