@@ -231,4 +231,23 @@ describe('Paint by Number canvas', () => {
 
     w.unmount()
   })
+
+  it('resets colors after a level', async () => {
+    const w = await mountSuspended(PaintByNumberCanvas)
+    await untilLoaded(w)
+
+    await w.get('[data-idx="0"]').trigger('click')
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).not.toBe('')
+
+    await w.findAll('[aria-label="Difficulty level"] button')[1]!.trigger('click')
+    await untilLoaded(w) // wait for Level 2 SVG to load and clears fills
+
+    expect((w.get('[data-idx="0"]').element as SVGElement).style.fill).toBe('')
+    expect(w.get('[aria-live="polite"]').text()).toBe('0 of 2 shapes colored')
+    expect(w.get('[aria-label="Color number 1, Yellow"]').attributes('aria-pressed')).toBe('true')
+    expect(w.findAll('[aria-label="Color palette"] button')).toHaveLength(
+      coloringLevels[1]!.colors.length
+    )
+    w.unmount()
+  })
 })
