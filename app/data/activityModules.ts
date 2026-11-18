@@ -1,5 +1,5 @@
-// Shared content for every activity module page: header, research, game tabs, printable
-// resources and related modules. Each module page renders this through ActivityModulePage.
+// Shared content for every activity module page: header, research, game tabs, related
+// modules. Each module page renders this through ActivityModulePage.
 
 export type ModuleSlug =
   | 'reminiscence'
@@ -12,12 +12,6 @@ export type ModuleSlug =
   | 'dual-task'
   | 'horticulture'
 
-export interface ModuleResource {
-  title: string
-  description: string
-  icon: string
-}
-
 export interface ActivityModule {
   tag: string
   title: string
@@ -27,7 +21,6 @@ export interface ActivityModule {
   research: string
   benefits: string[]
   tabs: Array<{ label: string; to: string }>
-  resources: ModuleResource[]
   related: ModuleSlug[]
 }
 
@@ -42,10 +35,6 @@ export const TAG_CLASSES: Record<string, string> = {
   Sensory: 'bg-[#ecfeff] text-cyan-800',
 }
 
-const SHEET_ICON = '/activities/icon-file.svg'
-const GUIDE_ICON = '/activities/icon-book-green.svg'
-const TRACKER_ICON = '/activities/icon-activity-green.svg'
-
 export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
   reminiscence: {
     tag: 'Memory',
@@ -59,23 +48,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Life story prompts', to: '/activities/reminiscence' },
       { label: 'Photo memory starters', to: '/activities/reminiscence/photo-memory-starters' },
       { label: 'Reminiscence journal', to: '/activities/reminiscence/journal' },
-    ],
-    resources: [
-      {
-        title: 'Activity Sheet',
-        description: 'Printable life-story yes/no prompt cards',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'Tips on pacing and memory conversation',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for reminiscence practice',
-        icon: TRACKER_ICON,
-      },
     ],
     related: ['music', 'puzzles', 'writing'],
   },
@@ -93,23 +65,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Calendar', to: '/activities/reality-orientation/whiteboard' },
       { label: 'Find the object', to: '/activities/reality-orientation/findObject' },
     ],
-    resources: [
-      {
-        title: 'Daily Planner',
-        description: 'Printable large-print plan for the day',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'How to give gentle, non-quizzing reminders',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for orientation practice',
-        icon: TRACKER_ICON,
-      },
-    ],
     related: ['reminiscence', 'puzzles', 'writing'],
   },
 
@@ -125,23 +80,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Mirrored coloring', to: '/activities/coloring' },
       { label: 'Paint by number', to: '/activities/coloring/paint-by-number' },
       { label: 'Color mixing', to: '/activities/coloring/color-mixing' },
-    ],
-    resources: [
-      {
-        title: 'Coloring Pages',
-        description: 'Printable large-outline pictures to color',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'Setting up a calm, mess-free art session',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for art practice',
-        icon: TRACKER_ICON,
-      },
     ],
     related: ['writing', 'horticulture', 'music'],
   },
@@ -160,23 +98,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Word search', to: '/activities/puzzles/word-search' },
       { label: 'Picture puzzle', to: '/activities/puzzles/picture-puzzle' },
     ],
-    resources: [
-      {
-        title: 'Puzzle Sheets',
-        description: 'Printable large-letter word searches',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'Choosing the right level and giving hints',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for puzzle practice',
-        icon: TRACKER_ICON,
-      },
-    ],
     related: ['reminiscence', 'digital-vr', 'dual-task'],
   },
 
@@ -192,23 +113,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Rhythm exercise', to: '/activities/music' },
       { label: 'Sing along', to: '/activities/music/sing-along' },
       { label: 'Drums', to: '/activities/music/drums' },
-    ],
-    resources: [
-      {
-        title: 'Song Sheet',
-        description: 'Printable lyrics for familiar sing-alongs',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'Choosing songs and setting a comfortable pace',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for music practice',
-        icon: TRACKER_ICON,
-      },
     ],
     related: ['reminiscence', 'dual-task', 'digital-vr'],
   },
@@ -227,23 +131,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Counting Money', to: '/activities/digital-vr/counting-money' },
       { label: 'Rhythm Tiles', to: '/activities/digital-vr/rhythm-tiles' },
     ],
-    resources: [
-      {
-        title: 'Practice Sheet',
-        description: 'Printable coin and bill counting cards',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'Helping with devices and screen comfort',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for digital training',
-        icon: TRACKER_ICON,
-      },
-    ],
     related: ['puzzles', 'music', 'dual-task'],
   },
 
@@ -259,23 +146,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Calligraphy', to: '/activities/writing' },
       { label: 'Writing Practice', to: '/activities/writing/writing-prompt' },
       { label: 'Guided Writing', to: '/activities/writing/sentence-completion' },
-    ],
-    resources: [
-      {
-        title: 'Tracing Sheets',
-        description: 'Printable large-letter tracing practice',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'Comfortable grips, posture, and pacing',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for writing practice',
-        icon: TRACKER_ICON,
-      },
     ],
     related: ['coloring', 'reminiscence', 'reality-orientation'],
   },
@@ -293,23 +163,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Seated balance', to: '/activities/dual-task/reach-and-reflect' },
       { label: 'Clap it out', to: '/activities/dual-task/clap-it-out' },
     ],
-    resources: [
-      {
-        title: 'Exercise Cards',
-        description: 'Printable movement + brain task cards',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'Safety tips and seated modifications',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for dual-task practice',
-        icon: TRACKER_ICON,
-      },
-    ],
     related: ['music', 'puzzles', 'horticulture'],
   },
 
@@ -326,23 +179,6 @@ export const ACTIVITY_MODULES: Record<ModuleSlug, ActivityModule> = {
       { label: 'Plant care', to: '/activities/horticulture' },
       { label: 'Garden matching', to: '/activities/horticulture/garden' },
       { label: 'Tree trimming', to: '/activities/horticulture/tree-trimming' },
-    ],
-    resources: [
-      {
-        title: 'Plant Care Sheet',
-        description: 'Printable watering and light checklist',
-        icon: SHEET_ICON,
-      },
-      {
-        title: 'Caregiver Guide',
-        description: 'Safe tools and easy indoor plants',
-        icon: GUIDE_ICON,
-      },
-      {
-        title: 'Weekly Tracker',
-        description: 'Session log for garden activities',
-        icon: TRACKER_ICON,
-      },
     ],
     related: ['coloring', 'dual-task', 'music'],
   },
